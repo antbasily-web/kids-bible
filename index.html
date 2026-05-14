@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>My Little I's – Bible Adventures</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width:100%; height:100%; overflow:hidden; font-family:'Nunito',system-ui,sans-serif; }
+
+    /* ── SCENE ─────────────────────────────── */
+    .scene { position:fixed; inset:0; z-index:0;
+      background:linear-gradient(to bottom,#3db8e8 0%,#6dcef5 28%,#a8e6f7 50%,#8edaf4 66%,#4ec8ea 78%,#ffd89b 90%,#f5c06a 100%); }
+    .sun { position:fixed; z-index:1; top:28px; right:8%; width:68px; height:68px;
+      border-radius:50%; background:#ffe566;
+      box-shadow:0 0 0 14px rgba(255,229,102,.22),0 0 60px rgba(255,200,50,.45);
+      animation:sunP 4s ease-in-out infinite alternate; }
+    @keyframes sunP {
+      from{box-shadow:0 0 0 10px rgba(255,229,102,.18),0 0 44px rgba(255,200,50,.3)}
+      to{box-shadow:0 0 0 24px rgba(255,229,102,.28),0 0 80px rgba(255,200,50,.55)} }
+    .cloud{position:fixed;z-index:1;pointer-events:none}
+    .cloud-body{background:white;border-radius:50px;position:relative}
+    .cloud-body>div{position:absolute;background:white;border-radius:50%}
+    @keyframes driftL{0%{transform:translateX(0)}100%{transform:translateX(18px)}}
+    @keyframes driftR{0%{transform:translateX(0)}100%{transform:translateX(-14px)}}
+    .mtn{position:fixed;bottom:0;left:0;width:100%;z-index:2;pointer-events:none}
+
+    /* ── VIEW SYSTEM ────────────────────────── */
+    .view{position:fixed;inset:0;z-index:10;display:flex;flex-direction:column;
+      transition:opacity .32s ease,transform .32s cubic-bezier(.4,0,.2,1)}
+    .view.hidden{opacity:0;pointer-events:none;transform:translateX(48px)}
+    .view.slide-left.hidden{transform:translateX(-48px)}
+
+    /* ── HUB ────────────────────────────────── */
+    #hub{align-items:center;overflow:hidden}
+    .top-bar{width:100%;display:flex;align-items:center;justify-content:space-between;
+      padding:clamp(14px,2.5vh,22px) clamp(18px,3vw,32px) 0;flex-shrink:0}
+    .parents-btn{background:rgba(255,255,255,.75);backdrop-filter:blur(12px);border:none;
+      border-radius:50px;padding:8px 18px;font-size:12px;font-weight:800;color:#1a3a5c;
+      cursor:pointer;font-family:inherit;box-shadow:0 2px 12px rgba(0,0,0,.1);
+      transition:transform .15s,background .2s}
+    .parents-btn:hover{background:white;transform:scale(1.04)}
+    .logo-area{display:flex;flex-direction:column;align-items:center;
+      padding-top:clamp(4px,1vh,10px);flex-shrink:0}
+    .logo-sub{font-size:clamp(10px,1.4vw,13px);font-weight:800;letter-spacing:3.5px;
+      text-transform:uppercase;color:rgba(26,58,92,.6);margin-top:2px}
+    .cards-row{display:flex;gap:clamp(14px,2.5vw,28px);
+      padding:clamp(10px,2vh,20px) clamp(16px,3vw,36px) 0;
+      width:100%;max-width:960px;flex:1;align-items:stretch}
+    .choice-card{flex:1;border-radius:28px;overflow:hidden;display:flex;
+      flex-direction:column;cursor:pointer;position:relative;
+      transition:transform .28s cubic-bezier(.34,1.56,.64,1),box-shadow .28s;
+      animation:cardPop .72s cubic-bezier(.34,1.56,.64,1) both}
+    .choice-card.nt{animation-delay:.1s}
+    @keyframes cardPop{from{opacity:0;transform:scale(.82) translateY(28px)}to{opacity:1;transform:none}}
+    .choice-card:hover{transform:translateY(-8px) scale(1.025)}
+    .choice-card:active{transform:scale(.97)}
+    .choice-card.ot{background:linear-gradient(170deg,#fff9f0,#fff3e0);
+      box-shadow:0 10px 48px rgba(255,120,67,.28),0 2px 8px rgba(0,0,0,.07)}
+    .choice-card.nt{background:linear-gradient(170deg,#f0f8ff,#e1f3fd);
+      box-shadow:0 10px 48px rgba(2,136,209,.24),0 2px 8px rgba(0,0,0,.07)}
+    .choice-card.ot:hover{box-shadow:0 20px 64px rgba(255,120,67,.44),0 4px 16px rgba(0,0,0,.1)}
+    .choice-card.nt:hover{box-shadow:0 20px 64px rgba(2,136,209,.38),0 4px 16px rgba(0,0,0,.1)}
+    .hub-art{position:relative;overflow:hidden;min-height:clamp(130px,22vh,190px);
+      display:flex;align-items:flex-end;justify-content:center}
+    .ot .hub-art{background:linear-gradient(145deg,#ff7043,#ffb74d)}
+    .nt .hub-art{background:linear-gradient(145deg,#0288d1,#4fc3f7)}
+    .art-icons{position:absolute;top:10px;left:0;right:0;display:flex;
+      justify-content:space-around;padding:0 10px;pointer-events:none}
+    .art-icon{font-size:clamp(18px,2.5vw,24px);filter:drop-shadow(0 2px 5px rgba(0,0,0,.18));
+      animation:floatI 3.2s ease-in-out infinite alternate}
+    .art-icon:nth-child(2){animation-delay:.45s;animation-duration:2.8s}
+    .art-icon:nth-child(3){animation-delay:.9s;animation-duration:3.5s}
+    .art-icon:nth-child(4){animation-delay:1.3s;animation-duration:3s}
+    @keyframes floatI{from{transform:translateY(0)}to{transform:translateY(-10px)}}
+    .hub-body{padding:clamp(14px,2.5vh,20px) clamp(16px,2.5vw,22px) clamp(16px,2.5vh,22px);
+      display:flex;flex-direction:column;flex:1}
+    .hub-guide{font-size:11px;font-weight:900;letter-spacing:2px;text-transform:uppercase;margin-bottom:5px}
+    .ot .hub-guide{color:#e65100}.nt .hub-guide{color:#01579b}
+    .hub-title{font-size:clamp(20px,3vw,28px);font-weight:900;color:#1a3a5c;line-height:1.1;margin-bottom:5px}
+    .hub-desc{font-size:clamp(11px,1.4vw,13px);font-weight:700;color:#3a6080;line-height:1.5;margin-bottom:12px}
+    .chips{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:clamp(12px,2vh,18px);flex:1}
+    .chip{font-size:clamp(10px,1.2vw,12px);font-weight:800;border-radius:50px;padding:4px 11px;white-space:nowrap}
+    .ot .chip{background:#fff3e0;color:#bf360c}.nt .chip{background:#e1f3fd;color:#01579b}
+    .card-cta{display:block;width:100%;border:none;border-radius:50px;
+      padding:clamp(11px,1.8vh,15px) 20px;font-size:clamp(14px,1.8vw,17px);
+      font-weight:900;font-family:inherit;cursor:pointer;letter-spacing:.3px;
+      transition:transform .18s cubic-bezier(.34,1.56,.64,1),box-shadow .18s}
+    .ot .card-cta{background:linear-gradient(135deg,#ff7043,#ffb74d);color:white;box-shadow:0 4px 20px rgba(255,112,67,.45)}
+    .nt .card-cta{background:linear-gradient(135deg,#0288d1,#4fc3f7);color:white;box-shadow:0 4px 20px rgba(2,136,209,.4)}
+    .card-cta:hover{transform:scale(1.04)}.card-cta:active{transform:scale(.97)}
+    .hub-footer{flex-shrink:0;padding:clamp(6px,1.2vh,12px) 0 clamp(10px,1.8vh,18px);
+      font-size:11px;font-weight:700;letter-spacing:1.5px;color:rgba(26,58,92,.45);text-align:center}
+    @keyframes dropIn{from{opacity:0;transform:translateY(-24px) scale(.9)}to{opacity:1;transform:none}}
+    #hub .logo-area{animation:dropIn .65s cubic-bezier(.34,1.56,.64,1) both}
+
+    /* ── TIMELINE ───────────────────────────── */
+    #timeline{overflow:hidden}
+    .tl-nav{display:flex;align-items:center;justify-content:space-between;
+      padding:18px 22px 0;flex-shrink:0;gap:10px}
+    .nav-logo-btn{display:flex;align-items:center;gap:8px;
+      background:rgba(255,255,255,.82);backdrop-filter:blur(10px);
+      border:none;border-radius:50px;padding:7px 16px 7px 10px;cursor:pointer;
+      font-family:inherit;box-shadow:0 2px 12px rgba(0,0,0,.1);
+      transition:transform .15s,background .2s}
+    .nav-logo-btn:hover{background:white;transform:scale(1.04)}
+    .nav-logo-label{font-size:12px;font-weight:900;color:#1a3a5c;white-space:nowrap}
+    .testament-toggle{display:flex;gap:5px;background:rgba(255,255,255,.65);
+      backdrop-filter:blur(10px);border-radius:50px;padding:5px;box-shadow:0 2px 12px rgba(0,0,0,.1)}
+    .toggle-btn{border:none;border-radius:50px;padding:8px 16px;font-size:12px;font-weight:800;
+      font-family:inherit;cursor:pointer;transition:all .22s;color:#4a6a80;background:transparent}
+    .toggle-btn.active{background:white;color:#1a3a5c;box-shadow:0 2px 8px rgba(0,0,0,.12)}
+    .progress-pill{background:rgba(255,255,255,.82);backdrop-filter:blur(10px);
+      border-radius:50px;padding:9px 15px;font-size:12px;font-weight:800;
+      color:#1a6fa8;box-shadow:0 2px 12px rgba(0,0,0,.1);white-space:nowrap}
+    .tl-header{padding:12px 26px 8px;flex-shrink:0}
+    .tl-title{font-size:clamp(20px,3.5vw,28px);font-weight:900;color:#1a3a5c;letter-spacing:-.5px}
+    .tl-sub{font-size:12px;font-weight:700;color:#2a5a7c;margin-top:2px}
+    .pb-wrap{margin-top:10px;height:9px;background:rgba(255,255,255,.55);border-radius:10px;
+      overflow:hidden;max-width:300px;box-shadow:inset 0 1px 3px rgba(0,0,0,.1)}
+    .pb-fill{height:100%;border-radius:10px;transition:width .5s ease;
+      background:linear-gradient(to right,#ffb74d,#ff7043)}
+    .pb-fill.nt{background:linear-gradient(to right,#4fc3f7,#0288d1)}
+    .tl-scroll{flex:1;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;
+      padding:8px 0 16px;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.5) transparent}
+    .tl-scroll::-webkit-scrollbar{height:5px}
+    .tl-scroll::-webkit-scrollbar-thumb{background:rgba(255,255,255,.5);border-radius:10px}
+    .tl-track{display:flex;align-items:flex-end;padding:8px 36px 0;min-width:max-content;position:relative}
+    .tl-path{position:absolute;bottom:38px;left:36px;right:36px;height:9px;border-radius:9px;z-index:0;
+      background:linear-gradient(to right,#ffb74d,#ff7043,#ffd54f,#ffb74d,#ff7043);
+      background-size:400% 100%;animation:pathFlow 4s linear infinite;
+      box-shadow:0 3px 14px rgba(255,120,50,.45)}
+    .tl-path.nt{background:linear-gradient(to right,#4fc3f7,#0288d1,#7c4dff,#4fc3f7,#0288d1);
+      background-size:400% 100%;box-shadow:0 3px 14px rgba(2,136,209,.45)}
+    @keyframes pathFlow{from{background-position:0% 0%}to{background-position:100% 0%}}
+    .stop{display:flex;flex-direction:column;align-items:center;position:relative;z-index:1;
+      cursor:pointer;width:168px;flex-shrink:0;animation:stopIn .45s cubic-bezier(.34,1.56,.64,1) both}
+    @keyframes stopIn{from{opacity:0;transform:translateY(24px) scale(.88)}to{opacity:1;transform:none}}
+    .guide-stop{display:flex;flex-direction:column;align-items:center;position:relative;z-index:2;
+      width:96px;flex-shrink:0;animation:stopIn .45s cubic-bezier(.34,1.56,.64,1) both}
+    .guide-bubble{background:white;border-radius:14px;padding:6px 10px;font-size:10px;
+      font-weight:800;color:#1a3a5c;text-align:center;line-height:1.3;max-width:86px;
+      box-shadow:0 3px 12px rgba(0,0,0,.14);margin-bottom:5px;position:relative}
+    .guide-bubble::after{content:'';position:absolute;bottom:-7px;left:50%;transform:translateX(-50%);
+      border:7px solid transparent;border-top-color:white;border-bottom:none}
+    .guide-char{font-size:46px;line-height:1;animation:charBob 2s ease-in-out infinite alternate}
+    @keyframes charBob{from{transform:translateY(0)}to{transform:translateY(-7px)}}
+    .guide-stem{width:3px;height:14px;background:rgba(255,255,255,.6);border-radius:2px}
+    .guide-node{width:22px;height:22px;border-radius:50%;background:white;border:3px solid rgba(255,255,255,.5)}
+    .tl-card{background:white;border-radius:22px;overflow:hidden;width:155px;
+      box-shadow:0 8px 28px rgba(26,58,92,.18),0 2px 8px rgba(0,0,0,.07);
+      transition:transform .22s cubic-bezier(.34,1.56,.64,1),box-shadow .22s;text-align:left;padding:0}
+    .stop:hover .tl-card{transform:translateY(-10px);box-shadow:0 20px 44px rgba(26,58,92,.28)}
+    .stop:active .tl-card{transform:scale(.97)}
+    .tl-card.done{opacity:.78}
+    .tl-card.done .tl-art::after{content:'✓';position:absolute;top:8px;left:8px;
+      width:26px;height:26px;border-radius:50%;background:#43a047;display:flex;
+      align-items:center;justify-content:center;font-size:13px;font-weight:900;
+      color:white;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+    .tl-art{height:108px;position:relative;display:flex;align-items:center;
+      justify-content:center;overflow:hidden}
+    .tl-art::before{content:'';position:absolute;inset:0;
+      background:linear-gradient(160deg,rgba(255,255,255,.22) 0%,transparent 60%);
+      pointer-events:none;z-index:1}
+    .tl-num{position:absolute;top:9px;right:9px;z-index:2;width:24px;height:24px;
+      border-radius:50%;background:rgba(255,255,255,.32);backdrop-filter:blur(4px);
+      border:1.5px solid rgba(255,255,255,.65);font-size:10px;font-weight:900;color:white;
+      display:flex;align-items:center;justify-content:center}
+    .tl-icon{font-size:50px;line-height:1;position:relative;z-index:1;
+      filter:drop-shadow(0 4px 10px rgba(0,0,0,.22));
+      animation:iconBob var(--d,3s) ease-in-out infinite alternate}
+    @keyframes iconBob{from{transform:translateY(0) rotate(-3deg)}to{transform:translateY(-8px) rotate(3deg)}}
+    .tl-body{padding:11px 13px 14px;display:flex;flex-direction:column;gap:5px}
+    .tl-card-title{font-size:13px;font-weight:900;color:#1a3a5c;line-height:1.2}
+    .tl-verse{font-size:10px;font-weight:700;color:#7a9ab5}
+    .age-tag{font-size:9px;font-weight:800;padding:2px 8px;border-radius:20px}
+    .tl-ot .age-tag{background:#fff5ee;color:#bf5000;border:1px solid #ffd0a0}
+    .tl-nt .age-tag{background:#e8f4fd;color:#015f99;border:1px solid #b0d8f5}
+    .read-btn{margin-top:5px;width:100%;padding:9px 0;border-radius:30px;border:none;
+      font-size:11px;font-weight:900;font-family:inherit;cursor:pointer;color:white;
+      transition:transform .15s}
+    .tl-ot .read-btn{background:linear-gradient(135deg,#ff7043,#ffb74d);box-shadow:0 3px 10px rgba(255,112,67,.38)}
+    .tl-nt .read-btn{background:linear-gradient(135deg,#0288d1,#4fc3f7);box-shadow:0 3px 10px rgba(2,136,209,.38)}
+    .read-btn:hover{transform:scale(1.06)}
+    .stem{width:3px;height:20px;border-radius:2px}
+    .node{width:32px;height:32px;border-radius:50%;border:3px solid white;display:flex;
+      align-items:center;justify-content:center;font-size:10px;font-weight:900;color:white;
+      box-shadow:0 3px 12px rgba(0,0,0,.22);transition:transform .2s;flex-shrink:0}
+    .stop:hover .node{transform:scale(1.18)}
+    .node.done{background:#43a047 !important}
+    .swipe-hint{padding:0 24px 14px;text-align:center;font-size:12px;font-weight:800;
+      color:rgba(26,58,92,.48);display:flex;align-items:center;justify-content:center;gap:8px;
+      flex-shrink:0;animation:hintSlide 2s ease-in-out infinite alternate}
+    @keyframes hintSlide{from{transform:translateX(0)}to{transform:translateX(8px)}}
+
+    /* ── STORY VIEW ─────────────────────────── */
+    #story{overflow:hidden;background:transparent}
+    .sv-nav{display:flex;align-items:center;justify-content:space-between;
+      padding:16px 20px 12px;flex-shrink:0;gap:10px;
+      background:rgba(255,255,255,.18);backdrop-filter:blur(16px);
+      border-bottom:1px solid rgba(255,255,255,.3)}
+    .sv-back{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.8);
+      border:none;border-radius:50px;padding:8px 16px;font-size:12px;font-weight:900;
+      color:#1a3a5c;cursor:pointer;font-family:inherit;transition:transform .15s,background .2s}
+    .sv-back:hover{background:white;transform:scale(1.04)}
+    .sv-counter{font-size:12px;font-weight:900;color:#1a3a5c;
+      background:rgba(255,255,255,.7);padding:7px 14px;border-radius:50px}
+    .sv-badge{font-size:11px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;
+      padding:7px 14px;border-radius:50px;color:white}
+    .sv-badge.ot{background:linear-gradient(135deg,#ff7043,#ffb74d)}
+    .sv-badge.nt{background:linear-gradient(135deg,#0288d1,#4fc3f7)}
+
+    .sv-hero{flex-shrink:0;min-height:clamp(120px,24vh,200px);position:relative;
+      display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden}
+    .sv-hero::before{content:'';position:absolute;inset:0;
+      background:linear-gradient(160deg,rgba(255,255,255,.2) 0%,transparent 70%);z-index:1}
+    .sv-hero-icon{font-size:clamp(64px,10vw,90px);filter:drop-shadow(0 6px 16px rgba(0,0,0,.25));
+      animation:heroFloat 3s ease-in-out infinite alternate;position:relative;z-index:2}
+    @keyframes heroFloat{from{transform:translateY(0) scale(1)}to{transform:translateY(-10px) scale(1.05)}}
+    .sv-hero-title{font-size:clamp(18px,3vw,26px);font-weight:900;color:white;
+      text-shadow:0 2px 10px rgba(0,0,0,.3);margin-top:8px;position:relative;z-index:2;text-align:center}
+    .sv-hero-verse{font-size:12px;font-weight:800;color:rgba(255,255,255,.85);
+      margin-top:3px;position:relative;z-index:2}
+
+    .sv-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
+      padding:20px 20px 100px;background:rgba(255,255,255,.08);backdrop-filter:blur(4px)}
+
+    /* Story sentences */
+    .sv-sentence{font-size:clamp(16px,2.2vw,20px);font-weight:700;color:#1a3a5c;
+      line-height:1.65;padding:10px 14px;border-radius:14px;margin-bottom:6px;
+      transition:background .25s,transform .2s;cursor:default}
+    .sv-sentence.active{background:rgba(255,215,50,.35);transform:scale(1.01);
+      box-shadow:0 2px 12px rgba(255,180,0,.2)}
+
+    /* Read-to-me bar */
+    .sv-bar{position:absolute;bottom:0;left:0;right:0;z-index:20;
+      display:flex;align-items:center;gap:10px;padding:12px 20px 16px;
+      background:rgba(255,255,255,.92);backdrop-filter:blur(16px);
+      border-top:1px solid rgba(255,255,255,.6);box-shadow:0 -4px 24px rgba(0,0,0,.1)}
+    .sv-read-btn{flex:1;border:none;border-radius:50px;padding:13px 20px;
+      font-size:15px;font-weight:900;font-family:inherit;cursor:pointer;color:white;
+      transition:transform .18s,box-shadow .18s}
+    .sv-read-btn.ot{background:linear-gradient(135deg,#ff7043,#ffb74d);box-shadow:0 4px 16px rgba(255,112,67,.4)}
+    .sv-read-btn.nt{background:linear-gradient(135deg,#0288d1,#4fc3f7);box-shadow:0 4px 16px rgba(2,136,209,.38)}
+    .sv-read-btn:hover{transform:scale(1.03)}
+    .sv-next-btn{border:none;border-radius:50px;padding:13px 20px;font-size:14px;
+      font-weight:900;font-family:inherit;cursor:pointer;
+      background:rgba(26,58,92,.1);color:#1a3a5c;transition:transform .18s,background .2s}
+    .sv-next-btn:hover{background:rgba(26,58,92,.18);transform:scale(1.03)}
+
+    /* Quiz */
+    .sv-quiz-wrap{margin-top:24px;padding-top:20px;border-top:2px dashed rgba(26,58,92,.12)}
+    .sv-quiz-title{font-size:18px;font-weight:900;color:#1a3a5c;text-align:center;margin-bottom:16px}
+    .sv-q{background:white;border-radius:20px;padding:18px;margin-bottom:14px;
+      box-shadow:0 4px 18px rgba(26,58,92,.1)}
+    .sv-q-text{font-size:15px;font-weight:800;color:#1a3a5c;margin-bottom:12px;line-height:1.4}
+    .sv-opts{display:flex;flex-direction:column;gap:8px}
+    .sv-opt{border:2px solid rgba(26,58,92,.1);border-radius:50px;padding:10px 18px;
+      font-size:14px;font-weight:800;color:#1a3a5c;cursor:pointer;
+      background:rgba(26,58,92,.03);text-align:left;font-family:inherit;
+      transition:all .18s;width:100%}
+    .sv-opt:hover{border-color:rgba(26,58,92,.25);background:rgba(26,58,92,.06);transform:scale(1.02)}
+    .sv-opt.correct{background:#e8f5e9;border-color:#43a047;color:#2e7d32}
+    .sv-opt.wrong{background:#ffebee;border-color:#e53935;color:#c62828}
+    .sv-q-result{text-align:center;font-size:18px;font-weight:900;margin-top:10px;padding:8px}
+
+    /* Quiz complete banner */
+    .sv-quiz-done{background:linear-gradient(135deg,#fff9c4,#fff3e0);
+      border-radius:20px;padding:24px;text-align:center;margin-top:16px;
+      border:2px solid #ffd54f;display:none}
+    .sv-quiz-done.show{display:block;animation:popIn .5s cubic-bezier(.34,1.56,.64,1)}
+    @keyframes popIn{from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1}}
+    .sv-quiz-done h3{font-size:22px;font-weight:900;color:#e65100}
+    .sv-quiz-done p{font-size:14px;font-weight:700;color:#bf5000;margin-top:6px}
+
+    /* ── GAMES ──────────────────────────────── */
+    .sv-game-wrap{margin-top:24px;padding-top:20px;border-top:2px dashed rgba(26,58,92,.12)}
+    .sv-game-title{font-size:18px;font-weight:900;color:#1a3a5c;text-align:center;margin-bottom:14px}
+    .game-box{background:white;border-radius:24px;overflow:hidden;
+      box-shadow:0 6px 28px rgba(26,58,92,.15);padding:0}
+
+    /* Memory game */
+    .mem-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:16px}
+    .mem-card{aspect-ratio:1;border-radius:14px;cursor:pointer;perspective:600px;
+      transition:transform .15s}
+    .mem-card:hover{transform:scale(1.05)}
+    .mem-card-inner{width:100%;height:100%;position:relative;transform-style:preserve-3d;
+      transition:transform .4s cubic-bezier(.4,0,.2,1)}
+    .mem-card.flipped .mem-card-inner{transform:rotateY(180deg)}
+    .mem-card.matched .mem-card-inner{transform:rotateY(180deg)}
+    .mem-card.matched{opacity:.6;pointer-events:none}
+    .mem-front,.mem-back{position:absolute;inset:0;backface-visibility:hidden;border-radius:12px;
+      display:flex;align-items:center;justify-content:center;font-size:32px}
+    .mem-front{background:linear-gradient(135deg,#ff7043,#ffb74d);font-size:24px;color:white;font-weight:900}
+    .mem-back{background:linear-gradient(135deg,#fff9f0,#fff3e0);transform:rotateY(180deg);
+      border:2px solid rgba(255,112,67,.2)}
+    .mem-status{text-align:center;padding:8px 16px 16px;font-size:14px;font-weight:800;color:#1a3a5c}
+    .mem-win{background:linear-gradient(135deg,#e8f5e9,#f1f8e9);border-radius:16px;
+      padding:20px;text-align:center;margin:0 16px 16px;display:none}
+    .mem-win.show{display:block;animation:popIn .5s cubic-bezier(.34,1.56,.64,1)}
+    .mem-win h3{font-size:20px;font-weight:900;color:#2e7d32}
+
+    /* David & Goliath */
+    .dg-arena{background:linear-gradient(to bottom,#87ceeb 0%,#98fb98 70%,#8b7355 100%);
+      min-height:200px;position:relative;overflow:hidden;display:flex;align-items:flex-end;
+      justify-content:space-between;padding:0 24px 16px}
+    .dg-char{text-align:center;position:relative}
+    .dg-david{font-size:52px;filter:drop-shadow(2px 2px 4px rgba(0,0,0,.3))}
+    .dg-goliath{font-size:80px;filter:drop-shadow(2px 2px 6px rgba(0,0,0,.4));
+      transition:transform .5s,opacity .5s}
+    .dg-goliath.fallen{transform:rotate(90deg) translateY(20px);opacity:.5}
+    .dg-stone{position:absolute;font-size:22px;left:80px;bottom:40px;
+      transition:left .6s cubic-bezier(.4,0,1,1),bottom .6s cubic-bezier(0,0,.6,1);
+      display:none}
+    .dg-controls{padding:14px 16px;display:flex;flex-direction:column;align-items:center;gap:10px}
+    .dg-btn{border:none;border-radius:50px;padding:14px 32px;font-size:16px;font-weight:900;
+      font-family:inherit;cursor:pointer;background:linear-gradient(135deg,#ff7043,#ffb74d);
+      color:white;box-shadow:0 4px 16px rgba(255,112,67,.4);transition:transform .18s}
+    .dg-btn:hover{transform:scale(1.06)}
+    .dg-msg{font-size:14px;font-weight:800;color:#1a3a5c;text-align:center;min-height:22px}
+
+    /* Storm calmer */
+    .storm-box{background:linear-gradient(to bottom,#1a3a5c 0%,#0d47a1 40%,#1565c0 100%);
+      min-height:180px;position:relative;overflow:hidden;display:flex;
+      align-items:center;justify-content:center}
+    .storm-waves{position:absolute;bottom:0;left:0;right:0;height:60px;
+      background:rgba(255,255,255,.15);border-radius:50% 50% 0 0/30px 30px 0 0;
+      animation:wave 0.8s ease-in-out infinite alternate;transform-origin:bottom}
+    @keyframes wave{from{transform:scaleX(1.05) scaleY(1)}to{transform:scaleX(.95) scaleY(1.3)}}
+    .storm-waves.calm{animation:none;transform:none;background:rgba(255,255,255,.06)}
+    .storm-emoji{font-size:64px;position:relative;z-index:2;animation:storm 0.4s ease-in-out infinite alternate}
+    @keyframes storm{from{transform:rotate(-5deg)}to{transform:rotate(5deg)}}
+    .storm-emoji.calm{animation:none}
+    .storm-sun{font-size:64px;position:absolute;top:20px;right:20px;opacity:0;
+      transition:opacity 1s;z-index:2}
+    .storm-sun.show{opacity:1}
+    .storm-controls{padding:14px 16px;display:flex;flex-direction:column;align-items:center;gap:10px}
+    .storm-meter-wrap{width:100%;background:rgba(26,58,92,.1);border-radius:10px;height:14px;overflow:hidden}
+    .storm-meter{height:100%;border-radius:10px;background:linear-gradient(to right,#0288d1,#4fc3f7);
+      width:100%;transition:width .3s}
+    .storm-btn{border:none;border-radius:50px;padding:14px 32px;font-size:16px;font-weight:900;
+      font-family:inherit;cursor:pointer;background:linear-gradient(135deg,#0288d1,#4fc3f7);
+      color:white;box-shadow:0 4px 16px rgba(2,136,209,.4);transition:transform .1s,box-shadow .1s}
+    .storm-btn:active{transform:scale(.94);box-shadow:0 2px 8px rgba(2,136,209,.3)}
+    .storm-msg{font-size:14px;font-weight:800;color:#1a3a5c;text-align:center;min-height:22px}
+
+    /* ── MODAL (completion) ─────────────────── */
+    .modal-overlay{display:none;position:fixed;inset:0;z-index:100;
+      background:rgba(10,30,60,.55);backdrop-filter:blur(8px);
+      align-items:center;justify-content:center}
+    .modal-overlay.show{display:flex}
+    .modal{background:white;border-radius:32px;padding:36px 32px 30px;max-width:340px;width:90%;
+      text-align:center;box-shadow:0 24px 64px rgba(0,0,0,.32);
+      animation:modalIn .4s cubic-bezier(.34,1.56,.64,1)}
+    @keyframes modalIn{from{transform:scale(.78);opacity:0}to{transform:scale(1);opacity:1}}
+    .modal-icon{font-size:60px;margin-bottom:10px}
+    .modal-title{font-size:22px;font-weight:900;color:#1a3a5c;margin-bottom:8px}
+    .modal-text{font-size:14px;font-weight:700;color:#4a6a80;line-height:1.6}
+    .modal-close{margin-top:20px;padding:13px 32px;border-radius:50px;border:none;
+      background:linear-gradient(135deg,#ff7043,#ffb74d);color:white;font-size:15px;
+      font-weight:900;font-family:inherit;cursor:pointer;box-shadow:0 4px 18px rgba(255,112,67,.4);
+      transition:transform .15s}
+    .modal-close:hover{transform:scale(1.04)}
+  </style>
+</head>
+<body>
+
+<!-- SCENE -->
+<div class="scene"></div><div class="sun"></div>
+<div class="cloud" style="top:52px;left:4%;animation:driftL 6.5s ease-in-out infinite alternate">
+  <div class="cloud-body" style="width:96px;height:30px">
+    <div style="width:50px;height:50px;top:-26px;left:10px"></div>
+    <div style="width:36px;height:36px;top:-18px;left:46px"></div></div></div>
+<div class="cloud" style="top:84px;left:36%;animation:driftR 8s ease-in-out infinite alternate">
+  <div class="cloud-body" style="width:72px;height:22px;opacity:.82">
+    <div style="width:36px;height:36px;top:-18px;left:8px"></div>
+    <div style="width:26px;height:26px;top:-12px;left:34px"></div></div></div>
+<div class="cloud" style="top:44px;right:18%;animation:driftL 7.2s ease-in-out infinite alternate 1s">
+  <div class="cloud-body" style="width:84px;height:26px;opacity:.88">
+    <div style="width:42px;height:42px;top:-22px;left:8px"></div>
+    <div style="width:30px;height:30px;top:-14px;left:40px"></div></div></div>
+<svg class="mtn" viewBox="0 0 1440 300" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <path d="M0,200 L90,148 L170,176 L270,122 L370,158 L470,110 L570,144 L670,100 L770,138 L870,96 L970,134 L1070,94 L1170,128 L1290,88 L1410,122 L1440,112 L1440,300 L0,300Z" fill="#c9b8e8"/>
+  <path d="M248,135 L268,104 L288,135Z M538,118 L558,85 L578,118Z M850,105 L870,72 L890,105Z M1160,93 L1180,62 L1200,93Z" fill="white" opacity=".85"/>
+  <path d="M0,228 L65,190 L140,215 L220,175 L310,208 L415,162 L520,198 L630,152 L740,188 L855,145 L970,182 L1085,142 L1200,178 L1325,145 L1440,168 L1440,300 L0,300Z" fill="#6dbf6d"/>
+  <path d="M0,258 Q180,244 360,255 Q540,242 720,255 Q900,242 1080,255 Q1260,242 1440,252 L1440,300 L0,300Z" fill="#4a9e4a"/>
+  <path d="M0,268 Q240,258 480,264 Q720,256 960,264 Q1200,256 1440,264 L1440,300 L0,300Z" fill="#5bc8ea" opacity=".82"/>
+  <path d="M0,282 Q360,273 720,277 Q1080,273 1440,282 L1440,300 L0,300Z" fill="#ffd89b"/>
+</svg>
+
+<!-- ════════ HUB VIEW ════════ -->
+<div id="hub" class="view">
+  <div class="top-bar">
+    <div style="width:80px"></div>
+    <div class="logo-area">
+      <svg width="280" height="86" viewBox="0 0 280 86" xmlns="http://www.w3.org/2000/svg">
+        <text x="140" y="16" text-anchor="middle" font-family="Nunito,sans-serif" font-weight="900" font-size="13" fill="#1a3a5c" letter-spacing="4">MY LITTLE</text>
+        <g transform="translate(82,20)">
+          <circle cx="0" cy="-16" r="14" fill="#f4c08a"/><ellipse cx="0" cy="-26" rx="14" ry="6" fill="#7b3f00"/>
+          <circle cx="-4.5" cy="-17" r="2.5" fill="#333"/><circle cx="4.5" cy="-17" r="2.5" fill="#333"/>
+          <circle cx="-3.5" cy="-18" r="1" fill="white"/><circle cx="5.5" cy="-18" r="1" fill="white"/>
+          <path d="M-4,-9 Q0,-5 4,-9" fill="none" stroke="#c07040" stroke-width="1.8" stroke-linecap="round"/>
+          <circle cx="-9" cy="-12" r="4.5" fill="#ffb0a0" opacity=".5"/><circle cx="9" cy="-12" r="4.5" fill="#ffb0a0" opacity=".5"/>
+          <rect x="-15" y="0" width="30" height="8" rx="4" fill="#ff9a3c"/>
+          <rect x="-5" y="8" width="10" height="28" rx="5" fill="#ff9a3c"/>
+          <rect x="-15" y="36" width="30" height="8" rx="4" fill="#ff9a3c"/>
+          <line x1="-5" y1="18" x2="-20" y2="10" stroke="#ff9a3c" stroke-width="5" stroke-linecap="round"/>
+          <line x1="5" y1="18" x2="18" y2="24" stroke="#ff9a3c" stroke-width="5" stroke-linecap="round"/>
+        </g>
+        <g transform="translate(198,20)">
+          <circle cx="0" cy="-16" r="14" fill="#f4c08a"/><ellipse cx="0" cy="-26" rx="14" ry="6" fill="#7b3f00"/>
+          <circle cx="-17" cy="-18" r="6.5" fill="#ff4499"/><circle cx="17" cy="-18" r="6.5" fill="#ff4499"/>
+          <circle cx="-4.5" cy="-17" r="2.5" fill="#333"/><circle cx="4.5" cy="-17" r="2.5" fill="#333"/>
+          <circle cx="-3.5" cy="-18" r="1" fill="white"/><circle cx="5.5" cy="-18" r="1" fill="white"/>
+          <path d="M-4,-9 Q0,-5 4,-9" fill="none" stroke="#c07040" stroke-width="1.8" stroke-linecap="round"/>
+          <circle cx="-9" cy="-12" r="4.5" fill="#ffb0a0" opacity=".55"/><circle cx="9" cy="-12" r="4.5" fill="#ffb0a0" opacity=".55"/>
+          <rect x="-15" y="0" width="30" height="8" rx="4" fill="#ff80b0"/>
+          <rect x="-5" y="8" width="10" height="28" rx="5" fill="#ff80b0"/>
+          <rect x="-15" y="36" width="30" height="8" rx="4" fill="#ff80b0"/>
+          <line x1="-5" y1="18" x2="-20" y2="8" stroke="#ff80b0" stroke-width="5" stroke-linecap="round"/>
+          <line x1="5" y1="18" x2="20" y2="8" stroke="#ff80b0" stroke-width="5" stroke-linecap="round"/>
+        </g>
+        <text x="222" y="68" font-family="Nunito,sans-serif" font-weight="900" font-size="24" fill="#1a3a5c">'s</text>
+        <text x="38" y="66" font-family="Nunito" font-size="13" fill="#ff9a3c" opacity=".75">✦</text>
+        <text x="234" y="66" font-family="Nunito" font-size="13" fill="#ff80b0" opacity=".75">✦</text>
+      </svg>
+      <div class="logo-sub">Bible Adventures</div>
+    </div>
+    <button class="parents-btn" onclick="alert('Parents section coming soon! 🙏')">👨‍👩‍👧 Parents</button>
+  </div>
+
+  <div class="cards-row">
+    <div class="choice-card ot" onclick="goToTimeline('OT')" role="button" tabindex="0">
+      <div class="hub-art">
+        <div class="art-icons"><span class="art-icon">🌍</span><span class="art-icon">🌈</span><span class="art-icon">🦁</span><span class="art-icon">🗡️</span></div>
+        <svg width="118" height="148" viewBox="0 0 118 148">
+          <path d="M40,68 L34,138 L84,138 L78,68 Q59,80 40,68Z" fill="#e8a050"/>
+          <rect x="35" y="52" width="48" height="24" rx="12" fill="#e8a050"/>
+          <circle cx="59" cy="30" r="30" fill="#f4c08a"/>
+          <path d="M30,12 Q26,34 30,52" stroke="#7b3f00" stroke-width="9" fill="none" stroke-linecap="round"/>
+          <path d="M88,12 Q92,34 88,52" stroke="#7b3f00" stroke-width="9" fill="none" stroke-linecap="round"/>
+          <ellipse cx="59" cy="4" rx="30" ry="13" fill="#7b3f00"/>
+          <circle cx="47" cy="26" r="5.5" fill="#333"/><circle cx="71" cy="26" r="5.5" fill="#333"/>
+          <circle cx="49" cy="24" r="2" fill="white"/><circle cx="73" cy="24" r="2" fill="white"/>
+          <path d="M47,42 Q59,52 71,42" fill="none" stroke="#c07040" stroke-width="3.5" stroke-linecap="round"/>
+          <circle cx="38" cy="34" r="9" fill="#ffb0a0" opacity=".5"/><circle cx="80" cy="34" r="9" fill="#ffb0a0" opacity=".5"/>
+          <line x1="84" y1="22" x2="96" y2="140" stroke="#7b3f00" stroke-width="7" stroke-linecap="round"/>
+          <path d="M78,16 Q88,-2 95,14" fill="none" stroke="#7b3f00" stroke-width="6" stroke-linecap="round"/>
+          <line x1="35" y1="66" x2="12" y2="52" stroke="#e8a050" stroke-width="9" stroke-linecap="round"/>
+          <line x1="83" y1="66" x2="94" y2="56" stroke="#e8a050" stroke-width="9" stroke-linecap="round"/>
+          <rect x="40" y="132" width="16" height="16" rx="8" fill="#c87830"/>
+          <rect x="62" y="132" width="16" height="16" rx="8" fill="#c87830"/>
+        </svg>
+      </div>
+      <div class="hub-body">
+        <div class="hub-guide">👦 Explore with Isaiah</div>
+        <div class="hub-title">Old Testament</div>
+        <div class="hub-desc">14 epic adventures — from the very first day to mighty prophets!</div>
+        <div class="chips">
+          <span class="chip">🌍 Creation</span><span class="chip">🌈 Noah's Ark</span>
+          <span class="chip">🗡️ David &amp; Goliath</span><span class="chip">🦁 Daniel's Lions</span>
+          <span class="chip">+ 10 more!</span>
+        </div>
+        <button class="card-cta">Start the Adventure! →</button>
+      </div>
+    </div>
+
+    <div class="choice-card nt" onclick="goToTimeline('NT')" role="button" tabindex="0">
+      <div class="hub-art">
+        <div class="art-icons"><span class="art-icon">⭐</span><span class="art-icon">🕊️</span><span class="art-icon">🌊</span><span class="art-icon">🌅</span></div>
+        <svg width="118" height="148" viewBox="0 0 118 148">
+          <path d="M38,66 L30,138 L88,138 L80,66 Q59,78 38,66Z" fill="#ff80b0"/>
+          <rect x="35" y="50" width="48" height="22" rx="11" fill="#ff80b0"/>
+          <circle cx="59" cy="28" r="30" fill="#f4c08a"/>
+          <path d="M30,10 Q22,28 24,48" stroke="#7b3f00" stroke-width="9" fill="none" stroke-linecap="round"/>
+          <path d="M88,10 Q96,28 94,48" stroke="#7b3f00" stroke-width="9" fill="none" stroke-linecap="round"/>
+          <circle cx="22" cy="48" r="12" fill="#ff4499"/><circle cx="96" cy="48" r="12" fill="#ff4499"/>
+          <ellipse cx="59" cy="2" rx="30" ry="13" fill="#7b3f00"/>
+          <circle cx="47" cy="24" r="5.5" fill="#333"/><circle cx="71" cy="24" r="5.5" fill="#333"/>
+          <circle cx="49" cy="22" r="2" fill="white"/><circle cx="73" cy="22" r="2" fill="white"/>
+          <path d="M47,40 Q59,52 71,40" fill="none" stroke="#c07040" stroke-width="3.5" stroke-linecap="round"/>
+          <circle cx="38" cy="32" r="9" fill="#ffb0a0" opacity=".55"/><circle cx="80" cy="32" r="9" fill="#ffb0a0" opacity=".55"/>
+          <line x1="35" y1="60" x2="10" y2="38" stroke="#ff80b0" stroke-width="9" stroke-linecap="round"/>
+          <line x1="83" y1="60" x2="108" y2="38" stroke="#ff80b0" stroke-width="9" stroke-linecap="round"/>
+          <rect x="40" y="132" width="16" height="16" rx="8" fill="#f4c08a"/>
+          <rect x="62" y="132" width="16" height="16" rx="8" fill="#f4c08a"/>
+          <ellipse cx="48" cy="147" rx="12" ry="5" fill="#ff4499"/>
+          <ellipse cx="70" cy="147" rx="12" ry="5" fill="#ff4499"/>
+        </svg>
+      </div>
+      <div class="hub-body">
+        <div class="hub-guide">👧 Explore with Ilariya</div>
+        <div class="hub-title">New Testament</div>
+        <div class="hub-desc">14 amazing stories — from baby Jesus to the Holy Spirit!</div>
+        <div class="chips">
+          <span class="chip">⭐ Jesus is Born</span><span class="chip">🌊 Calming the Storm</span>
+          <span class="chip">🌅 He is Alive!</span><span class="chip">🐑 The Lost Sheep</span>
+          <span class="chip">+ 10 more!</span>
+        </div>
+        <button class="card-cta">Start the Adventure! →</button>
+      </div>
+    </div>
+  </div>
+  <div class="hub-footer">✦ My Little I's · Bible Adventures for Ages 4–10 ✦</div>
+</div>
+
+<!-- ════════ TIMELINE VIEW ════════ -->
+<div id="timeline" class="view hidden">
+  <nav class="tl-nav">
+    <button class="nav-logo-btn" onclick="goToHub()">
+      <svg width="28" height="28" viewBox="0 0 28 28">
+        <circle cx="10" cy="7" r="5" fill="#f4c08a"/><ellipse cx="10" cy="3" rx="5" ry="2.5" fill="#7b3f00"/>
+        <rect x="6" y="12" width="8" height="3" rx="1.5" fill="#ff9a3c"/>
+        <rect x="8" y="15" width="4" height="8" rx="2" fill="#ff9a3c"/>
+        <rect x="6" y="23" width="8" height="3" rx="1.5" fill="#ff9a3c"/>
+        <circle cx="21" cy="7" r="5" fill="#f4c08a"/><ellipse cx="21" cy="3" rx="5" ry="2.5" fill="#7b3f00"/>
+        <circle cx="17" cy="7" r="2.2" fill="#ff4499"/><circle cx="25" cy="7" r="2.2" fill="#ff4499"/>
+        <rect x="17" y="12" width="8" height="3" rx="1.5" fill="#ff80b0"/>
+        <rect x="19" y="15" width="4" height="8" rx="2" fill="#ff80b0"/>
+        <rect x="17" y="23" width="8" height="3" rx="1.5" fill="#ff80b0"/>
+      </svg>
+      <span class="nav-logo-label">← My Little I's</span>
+    </button>
+    <div class="testament-toggle">
+      <button class="toggle-btn active" id="btn-ot" onclick="switchTestament('OT')">📜 Old Testament</button>
+      <button class="toggle-btn" id="btn-nt" onclick="switchTestament('NT')">✨ New Testament</button>
+    </div>
+    <div class="progress-pill" id="progress-pill">0 / 14</div>
+  </nav>
+  <div class="tl-header">
+    <div class="tl-title" id="tl-title">Old Testament Journey</div>
+    <div class="tl-sub" id="tl-sub">14 epic adventures — tap a story to begin!</div>
+    <div class="pb-wrap"><div class="pb-fill" id="pb-fill" style="width:0%"></div></div>
+  </div>
+  <div class="tl-scroll" id="tl-scroll">
+    <div class="tl-track" id="tl-track">
+      <div class="tl-path" id="tl-path"></div>
+    </div>
+  </div>
+  <div class="swipe-hint"><span>Swipe to explore all stories</span><span>👉</span></div>
+</div>
+
+<!-- ════════ STORY VIEW ════════ -->
+<div id="story" class="view hidden">
+  <div class="sv-nav">
+    <button class="sv-back" onclick="goBackToTimeline()">← Stories</button>
+    <div class="sv-counter" id="sv-counter">1 of 14</div>
+    <div class="sv-badge ot" id="sv-badge">📜 OT</div>
+  </div>
+  <div class="sv-hero" id="sv-hero">
+    <div class="sv-hero-icon" id="sv-icon">🌍</div>
+    <div class="sv-hero-title" id="sv-title">Story Title</div>
+    <div class="sv-hero-verse" id="sv-verse">Genesis 1</div>
+  </div>
+  <div class="sv-scroll" id="sv-scroll">
+    <div id="sv-sentences"></div>
+    <div class="sv-quiz-wrap" id="sv-quiz-wrap">
+      <div class="sv-quiz-title">🧠 Quiz Time!</div>
+      <div id="sv-quiz-questions"></div>
+      <div class="sv-quiz-done" id="sv-quiz-done">
+        <div style="font-size:48px">🌟</div>
+        <h3>Amazing! You got them all!</h3>
+        <p>You're a Bible superstar!</p>
+      </div>
+    </div>
+    <div class="sv-game-wrap" id="sv-game-wrap" style="display:none">
+      <div class="sv-game-title" id="sv-game-title">🎮 Play the Game!</div>
+      <div class="game-box" id="sv-game-box"></div>
+    </div>
+  </div>
+  <div class="sv-bar">
+    <button class="sv-read-btn ot" id="sv-read-btn" onclick="toggleReading()">🔊 Read to Me</button>
+    <button class="sv-next-btn" onclick="nextStory()">Next Story →</button>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-icon" id="modal-icon">🌟</div>
+    <div class="modal-title" id="modal-title">Well done!</div>
+    <div class="modal-text" id="modal-text"></div>
+    <button class="modal-close" onclick="closeModal()">Keep Going! →</button>
+  </div>
+</div>
+
+<script>
+/* ════════ STORY DATA ════════
+   Each entry: { s: [sentences], q: [[question,[opt0,opt1,opt2],correctIdx],...], game: null|'memory'|'slingshot'|'storm' }
+*/
+const SC = {
+ OT:[
+  {s:["In the very beginning there was absolutely nothing — no stars, no sky, no animals, and no you!","Then God spoke and said 'Let there be light!' and WHOOSH — light filled the whole universe!","Over six amazing days God made the sky and oceans, the sun and moon, every plant, and every animal you can imagine.","On day six God made the very first people — Adam and Eve — and breathed His own life into them.","God looked at everything He had made and said 'It is very good!' Then on day seven God rested and called it holy."],
+   q:[["How many days did God take to create the world?",["7 days","6 days","3 days"],1],["What was the very first thing God made?",["Animals","Light","People"],1],["What did God do on the seventh day?",["Made stars","Sang a song","Rested"],2]],
+   game:null},
+  {s:["God saw the world was very sad, but He found one good man named Noah and said 'Build a giant boat called an ark!'","Noah built the ark even when nobody else believed him — what faith!","God sent two of every animal — elephants, lions, giraffes, even tiny beetles — marching two by two onto the boat!","It rained for forty whole days and nights, but Noah and his family were safe and dry inside.","When the rain stopped God put a beautiful rainbow in the sky and promised He would never flood the whole earth again."],
+   q:[["What did God tell Noah to build?",["A house","A boat","A tower"],1],["How many of each animal did Noah bring?",["1","2","10"],1],["What did God put in the sky after the flood?",["A star","A rainbow","A cloud"],1]],
+   game:'memory'},
+  {s:["God spoke to a man named Abraham and said 'Leave your home and go to a new land I will show you!'","Abraham packed up everything and set off on a great adventure — trusting God completely.","God promised Abraham would have more children and grandchildren than there were stars in the night sky.","Even when Abraham was very old and had no children, he kept believing God's wonderful promise.","God kept His word — Abraham and Sarah had a baby son named Isaac, and their family grew and grew and grew!"],
+   q:[["What did God promise Abraham?",["A palace","A family as big as the stars","A treasure chest"],1],["What was Abraham's baby son named?",["Jacob","Moses","Isaac"],2],["What did Abraham have to do first?",["Cross the sea","Fight a giant","Leave his home"],2]],
+   game:null},
+  {s:["Jacob loved his son Joseph very much and gave him a beautiful coat of many colours.","Joseph's brothers were so jealous they did something very wrong — they sold Joseph as a slave to people going to Egypt!","Joseph was sad, but God was with him every single step of the way.","In Egypt God gave Joseph a special power to understand dreams, which led him all the way to the king's palace!","When famine came Joseph forgave his brothers with a big hug saying 'You meant it for harm, but God meant it for good!'"],
+   q:[["What did Jacob give Joseph?",["A crown","A colourful coat","A sword"],1],["What special gift did God give Joseph?",["Super strength","Understanding dreams","Singing"],1],["What did Joseph say to his brothers?",["I'm angry at you!","Go away forever!","God meant it for good!"],2]],
+   game:null},
+  {s:["God's people the Israelites were slaves in Egypt, crying out for help — and God heard every cry!","God chose a man named Moses and spoke to him from a burning bush that was on fire but never burned up!","God sent ten amazing plagues to Egypt — frogs, locusts, and darkness — until Pharaoh finally let the people go.","Pharaoh changed his mind and chased them right to the edge of the Red Sea!","Moses stretched out his hand and God parted the whole sea — the water stood up like walls and everyone walked across on dry ground!"],
+   q:[["What did God speak to Moses from?",["A cloud","A burning bush","A stone"],1],["What did Moses do to part the Red Sea?",["Prayed loudly","Stretched out his hand","Blew a trumpet"],1],["Where did the Israelites live as slaves?",["Babylon","Rome","Egypt"],2]],
+   game:null},
+  {s:["God called Moses up a special mountain called Mount Sinai to give him the most important rules ever!","The mountain shook with thunder and lightning — God was really there!","God gave Moses ten commandments and wrote them with His very own finger on two stone tablets.","The first rules were about loving God — worship only Him and keep His special day holy.","The other rules were about loving people — honour your parents, don't steal, don't lie, and treat everyone kindly."],
+   q:[["How many commandments did God give?",["7","10","12"],1],["What did God write them on?",["Paper","Wood","Stone tablets"],2],["What mountain did Moses climb?",["Mount Zion","Mount Sinai","Mount Ararat"],1]],
+   game:null},
+  {s:["God chose a brave man named Joshua to lead His people into the Promised Land.","But the city of Jericho had huge thick walls — nobody could get through!","God gave a very unusual battle plan: march around the city once a day for six days, then seven times on day seven!","The people must have thought it was the strangest idea ever — but they obeyed God completely.","On day seven they marched seven times, blew their trumpets, gave a mighty SHOUT — and the walls of Jericho fell completely flat!"],
+   q:[["What city had the famous walls?",["Jerusalem","Babylon","Jericho"],2],["How many days did they march?",["3","5","7"],2],["What made the walls fall?",["A battering ram","Trumpets and a shout","An earthquake"],1]],
+   game:null},
+  {s:["God gave a man named Samson incredible super-strength — as long as he kept his special promise and never cut his hair!","Samson could defeat lions with his bare hands and was the strongest man who ever lived.","But Samson made bad choices and told a sneaky woman named Delilah his secret.","While Samson slept Delilah cut off his hair and his strength was gone — the enemies captured him!","Samson prayed, his hair grew back, God gave him strength one last time, and he showed that God's power is the greatest of all."],
+   q:[["Where did Samson's strength come from?",["His muscles","His armour","His hair"],2],["Who cut Samson's hair?",["His mother","Delilah","A soldier"],1],["What came back when Samson prayed?",["His sight","His strength","His family"],1]],
+   game:null},
+  {s:["Ruth was from a foreign land but loved her mother-in-law Naomi so much she refused to leave her side.","She said 'Where you go I will go. Your people will be my people and your God will be my God.'","In a new land Ruth worked hard gathering leftover grain from fields to feed them both.","A kind man named Boaz noticed how hard Ruth worked and how loyal she was to Naomi.","God blessed Ruth so much that she became an ancestor of King David — and of Jesus Himself!"],
+   q:[["What did Ruth say to Naomi?",["I'll go home now","Where you go I will go","I need help"],1],["Who was the kind man who helped Ruth?",["Samuel","Jacob","Boaz"],2],["What was Ruth doing when she met Boaz?",["Drawing water","Herding sheep","Gathering grain"],2]],
+   game:null},
+  {s:["The Israelite army trembled in fear! A giant warrior named Goliath stood nine feet tall, shouting insults every single day.","Nobody dared fight him — except a young shepherd boy named David!","David said 'God helped me protect my sheep from lions and bears — He will protect me from this giant too!'","David chose five smooth stones from the stream and walked toward Goliath with only his slingshot.","David swung the slingshot — CRACK! The stone hit Goliath right in the forehead and the mighty giant fell to the ground!"],
+   q:[["How tall was Goliath?",["Six feet","Nine feet","Twelve feet"],1],["What did David use to defeat Goliath?",["A sword","A spear","A slingshot and stone"],2],["How many stones did David pick up?",["1","3","5"],2]],
+   game:'slingshot'},
+  {s:["When King David died his son Solomon became the new king of Israel.","God came to Solomon in a dream and said 'Ask for anything you want and I will give it to you!'","Solomon could have asked for riches or power — but he asked for wisdom to lead God's people well.","God was so pleased with Solomon's answer that He gave him wisdom AND wealth AND honour!","Solomon built the most beautiful temple for God in Jerusalem, decorated with gold — and people came from all over the world to hear his wisdom."],
+   q:[["What did Solomon ask God for?",["Gold","Power","Wisdom"],2],["What did Solomon build for God?",["A palace","A temple","A tower"],1],["Who was Solomon's father?",["Abraham","Moses","King David"],2]],
+   game:null},
+  {s:["The people of Israel were worshipping a fake god called Baal instead of the real God.","The prophet Elijah challenged 450 prophets of Baal to a contest on Mount Carmel — ask your god to send fire from heaven!","The prophets of Baal called out all day long, jumping and shouting — but nothing happened. Baal was completely silent.","Then Elijah built his altar and poured water all over it three times until it was totally soaking wet — then said one simple prayer.","WHOOOOSH! Fire roared down from heaven and burned up the entire altar, wet wood and all! Everyone fell down shouting 'The Lord — He is God!'"],
+   q:[["What did Elijah challenge the prophets of Baal to?",["A running race","A fire contest","A singing contest"],1],["What happened when Elijah prayed?",["Rain fell","The earth shook","Fire came from heaven"],2],["How many times did Elijah pour water on his altar?",["1","2","3"],2]],
+   game:null},
+  {s:["Evil men tricked a king into making a law that said no one could pray to God for 30 days.","Daniel heard about the law — and went home, opened his window toward Jerusalem, and prayed to God anyway. Three times a day, just like always!","The king was very sad but had no choice — he had Daniel thrown into a den full of hungry lions.","But God sent His angel to shut every lion's mouth, and Daniel sat among them all night without a scratch!","The king ran to the den in the morning and shouted — Daniel was alive! He declared that everyone in his kingdom must respect the living God who saves!"],
+   q:[["What was Daniel thrown into?",["A fiery furnace","A dungeon","A lions' den"],2],["Who shut the lions' mouths?",["The king","God's angel","Daniel himself"],1],["How many times a day did Daniel pray?",["1","3","5"],1]],
+   game:null},
+  {s:["God told Jonah to go to the big city of Nineveh and tell the people to change their ways.","But Jonah didn't want to go, so he ran the other way and jumped on a boat sailing far away!","God sent a huge storm and the sailors were terrified — Jonah told them 'Throw me into the sea! The storm is because of me!'","They threw Jonah overboard, the storm stopped immediately — and God sent a giant fish to swallow Jonah whole!","Jonah sat inside the fish for three days and three nights, prayed and said sorry — the fish spat him out and this time Jonah went straight to Nineveh!"],
+   q:[["Where did God tell Jonah to go?",["Egypt","Babylon","Nineveh"],2],["How many days was Jonah in the fish?",["1","3","7"],1],["What stopped the storm?",["Moses prayed","Jonah was thrown overboard","The fish appeared"],1]],
+   game:null}
+ ],
+ NT:[
+  {s:["An angel visited a young woman named Mary and said 'You will have a very special baby — the Son of God!'","Mary and Joseph had to travel to Bethlehem, but when they arrived there was no room at the inn!","A kind innkeeper let them stay in his stable with the animals, and that night baby Jesus was born.","Angels appeared to shepherds in the fields nearby, singing 'Glory to God in the highest!' — and the shepherds RAN to find the baby.","God sent His greatest gift to the whole world — the King of kings, wrapped in cloth and lying in a manger!"],
+   q:[["Where was Jesus born?",["Jerusalem","Nazareth","Bethlehem"],2],["Who visited Jesus first?",["Kings","Angels","Shepherds"],2],["Where did Mary lay baby Jesus?",["A palace","A basket","A manger"],2]],
+   game:null},
+  {s:["Far away in the East, wise men saw a brand new star shining in the sky — a great king had been born!","They packed their bags and followed the star on a very long journey across the whole desert.","When they arrived the star stopped right over the house where Jesus was — they went in and fell to their knees!","They worshipped baby Jesus and gave him three wonderful gifts — gold, frankincense, and myrrh — fit for a king.","Their story shows us that Jesus is worth seeking no matter how long or hard the journey is!"],
+   q:[["What did the wise men follow?",["A map","An angel","A star"],2],["How many gifts did they bring?",["2","3","5"],1],["What did the wise men do when they saw Jesus?",["Left quickly","Asked questions","Worshipped Him"],2]],
+   game:null},
+  {s:["When Jesus was about 30 years old He went to the River Jordan where His cousin John was baptising people.","Jesus asked to be baptised and John agreed — even though John said he should be baptised by Jesus instead!","When Jesus came up out of the water the sky opened up wide!","The Holy Spirit came down looking like a dove and landed gently on Jesus.","Then God the Father spoke from heaven: 'This is My beloved Son, in whom I am well pleased!' — all three persons of God were there at once!"],
+   q:[["In what river was Jesus baptised?",["The Nile","The Jordan River","The Galilee"],1],["What did the Holy Spirit look like?",["A flame","A cloud","A dove"],2],["What did God say from heaven?",["Follow the star","This is My beloved Son","Blessed are you"],1]],
+   game:null},
+  {s:["Jesus was walking beside the Sea of Galilee when He saw two brothers — Simon Peter and Andrew — casting their fishing nets.","Jesus called out to them 'Follow me and I will make you fishers of people!' — and straightaway they left their nets!","A little further along Jesus saw two more brothers, James and John, fixing nets with their father.","Jesus called them too and they left their boat and followed Him immediately — without even a second thought!","Jesus chose twelve ordinary people — fishermen, a tax collector, and others — to be His special helpers, called disciples."],
+   q:[["What were Peter and Andrew doing?",["Sleeping","Farming","Fishing"],2],["What did Jesus say He would make them?",["Leaders of Israel","Fishers of people","Teachers"],1],["How many disciples did Jesus choose?",["7","10","12"],2]],
+   game:null},
+  {s:["One day huge crowds followed Jesus up a green hillside to hear Him teach the greatest lesson ever!","Jesus said 'Blessed are the poor in spirit, for theirs is the kingdom of heaven' — meaning that people who know they need God are truly happy.","He told them to love their enemies, to pray honestly and privately, and not to worry because God takes care of everything.","He said even the flowers in the field are dressed more beautifully than the wisest king!","He finished by saying 'Build your life on my words — like a house on a rock — and absolutely nothing can knock you down!'"],
+   q:[["Where did Jesus teach the great sermon?",["In the temple","On a boat","On a hillside"],2],["What did Jesus say about worry?",["Worry is normal","Work harder","God takes care of everything"],2],["What did Jesus say to build your life on?",["A rock","His words","Being kind"],1]],
+   game:null},
+  {s:["Jesus and His disciples got into a boat to cross the Sea of Galilee — and Jesus was so tired He fell fast asleep!","Suddenly a fierce storm blew in! Huge waves crashed over the sides and the disciples were terrified they would sink.","They woke Jesus crying 'Teacher, don't you care if we drown?!'","Jesus stood up, looked at the raging wind and waves, and said very calmly 'Peace! Be still!'","Immediately the wind stopped and the sea became completely smooth and calm. The disciples whispered in amazement 'Who is this man — even the wind and waves obey Him!'"],
+   q:[["What was Jesus doing during the storm?",["Praying","Rowing","Sleeping"],2],["What did Jesus say to the storm?",["Go away storm!","Peace! Be still!","Stop the rain!"],1],["What did the disciples say after?",["Let's go home!","Thank you!","Who is this man?"],2]],
+   game:'storm'},
+  {s:["A huge crowd of 5,000 people had followed Jesus all day and now everyone was very hungry!","The disciples said 'We only have five small loaves and two fish — that's nowhere near enough!'","But a little boy gave his lunch to Jesus, and Jesus took it, looked up to heaven and gave thanks to God.","Jesus broke the bread and fish and had His disciples hand it out — and every single person ate as much as they wanted!","Afterwards there were TWELVE baskets of food left over! Jesus turned one small lunch into a feast for thousands — nothing is impossible with God!"],
+   q:[["What food was there to start?",["10 loaves","5 loaves and 2 fish","A basket of bread"],1],["Who gave their lunch to Jesus?",["A fisherman","A little boy","Mary"],1],["How many baskets were left over?",["3","7","12"],2]],
+   game:null},
+  {s:["Jesus told a beautiful story about a shepherd who had 100 sheep.","One day the shepherd counted — and one little lamb was missing!","Instead of thinking 'Oh well, I still have 99' — the shepherd left all the safe sheep and went searching for the one lost lamb.","He searched over hills and through valleys until he finally found the frightened little sheep.","The shepherd picked up the lamb, carried it home on his shoulders, and called all his friends to celebrate! Jesus said there is more joy in heaven over one lost person who comes home to God than over 99 who never wandered!"],
+   q:[["How many sheep did the shepherd have?",["12","50","100"],2],["How many sheep were lost?",["1","3","10"],0],["What did the shepherd do when he found the sheep?",["Led it by a rope","Called for help","Carried it home on his shoulders"],2]],
+   game:null},
+  {s:["Jesus told a story about a boy who demanded his inheritance early from his father, then ran away to a far country to have fun.","He spent every penny on wild parties until it was all gone — and ended up so hungry he wanted to eat the pigs' food!","He came to his senses and thought 'My father's servants eat better than this — I'll go home and say sorry.'","While he was still far away his father SAW him coming — he must have been watching every day — and RAN to meet him!","His father threw his arms around him and had a huge celebration. That is how much God loves every single one of us — He runs to welcome us home!"],
+   q:[["What did the son ask for early?",["A horse","New clothes","His inheritance"],2],["What job did the son end up doing?",["Building houses","Feeding pigs","Fishing"],1],["What did the father do when he saw his son?",["Waited inside","Sent a servant","Ran to hug him"],2]],
+   game:null},
+  {s:["Jesus had a very good friend named Lazarus who got very sick and died — and Jesus was not there in time.","By the time Jesus arrived Lazarus had been in the tomb for four whole days.","His sisters Mary and Martha were heartbroken with sadness, and Jesus wept too — He felt their pain deeply.","Jesus went to the tomb — a cave with a big stone in front — and said 'Roll the stone away!' Then He prayed and shouted 'Lazarus, come out!'","And Lazarus walked right out of the tomb, still wrapped in grave cloths! Everyone who saw it believed in Jesus that day."],
+   q:[["How many days had Lazarus been in the tomb?",["2 days","4 days","7 days"],1],["What did Jesus do at the tomb?",["He sang","He wept","He ran away"],1],["What happened when Jesus called his name?",["Nothing happened","Lazarus walked out alive","The stone broke"],1]],
+   game:null},
+  {s:["Jesus and His disciples were approaching Jerusalem and the people went absolutely wild with excitement!","Jesus rode in on a young donkey — just as the prophet Zechariah had written about hundreds of years before!","People spread their cloaks on the road like a carpet for a king, and waved palm branches cheering and shouting.","They cried 'Hosanna! Blessed is He who comes in the name of the Lord!' — the whole city was buzzing!","It was Jesus — the true King — riding into His city to fulfil God's greatest plan."],
+   q:[["What did Jesus ride into Jerusalem?",["A horse","A camel","A young donkey"],2],["What did the people wave?",["Flowers","Flags","Palm branches"],2],["What did the crowd shout?",["Hallelujah!","Hosanna!","Amen!"],1]],
+   game:null},
+  {s:["On the night before Jesus died He shared a very special meal with His twelve disciples in an upstairs room.","Jesus took bread, gave thanks, broke it and said 'This is my body given for you — do this to remember me.'","He took a cup of wine and said 'This is my blood poured out for the forgiveness of sins.'","Then Jesus did something shocking — He knelt down and washed all His disciples' dirty feet, showing that being great means serving others.","Even knowing what was coming Jesus loved His friends completely, right to the very end."],
+   q:[["Where was the Last Supper?",["The temple","A garden","An upstairs room"],2],["What humble thing did Jesus do?",["Made their food","Told them stories","Washed their feet"],2],["What did the bread represent?",["The Passover","Jesus's body","His love for them"],1]],
+   game:null},
+  {s:["On Friday Jesus was crucified on a cross — and His friends buried Him in a tomb, sealing it with a heavy stone.","But early Sunday morning something impossible happened!","Mary Magdalene came to the tomb and found the stone rolled away — and the tomb was completely EMPTY!","An angel in dazzling white said 'He is not here — He has risen, just as He said!'","Jesus appeared to Mary, to His disciples, and then to hundreds of people. He was truly alive — and because Jesus lives, we can live forever too!"],
+   q:[["Who first came to the empty tomb?",["Peter","John","Mary Magdalene"],2],["What did the angel say?",["He is sleeping","He has risen!","Go back home"],1],["What had Jesus defeated?",["The Romans","A storm","Death"],2]],
+   game:null},
+  {s:["Before going back to heaven Jesus promised His disciples 'I will send you a Helper — the Holy Spirit — who will always be with you.'","He told them to wait in Jerusalem — and they prayed together for ten whole days!","Then suddenly — WHOOOOSH — a sound like a mighty rushing wind filled the whole house!","Tongues of fire appeared and rested on every single person there, and they were all filled with the Holy Spirit.","Peter stood up and preached — and 3,000 people became followers of Jesus that very day! God's Holy Spirit still lives in every believer today!"],
+   q:[["What was the sound like?",["Thunder","A trumpet","A rushing wind"],2],["What appeared on each person?",["A glowing light","Tongues of fire","White feathers"],1],["How many people believed that day?",["100","500","3,000"],2]],
+   game:null}
+ ]
+};
+
+/* ════════ TIMELINE DATA ════════ */
+const STORIES = {
+  OT:[
+    {icon:'🌍',title:'The Creation',     verse:'Genesis 1–2',   age:'4+',color:['#4ec9f0','#0288d1']},
+    {icon:'🌈',title:"Noah's Ark",        verse:'Genesis 6–9',   age:'4+',color:['#ff9a3c','#ff7043']},
+    {icon:'⭐',title:"Abraham's Journey", verse:'Genesis 12–22', age:'5+',color:['#ffd54f','#ff9a3c']},
+    {icon:'🎨',title:"Joseph's Coat",     verse:'Genesis 37–50', age:'5+',color:['#ab47bc','#7b1fa2']},
+    {icon:'🔥',title:'Moses & The Exodus',verse:'Exodus 1–15',   age:'5+',color:['#ff5722','#e64a19']},
+    {icon:'📜',title:'Ten Commandments',  verse:'Exodus 20',     age:'6+',color:['#78909c','#546e7a']},
+    {icon:'🎺',title:"Joshua's Army",     verse:'Joshua 1–6',    age:'5+',color:['#66bb6a','#388e3c']},
+    {icon:'💪',title:'Samson the Strong', verse:'Judges 13–16',  age:'6+',color:['#ffa726','#f57c00']},
+    {icon:'🌾',title:"Ruth's Kindness",   verse:'Ruth 1–4',      age:'5+',color:['#ffcc02','#ff9800']},
+    {icon:'🗡️',title:'David & Goliath',  verse:'1 Samuel 17',   age:'4+',color:['#ef5350','#c62828']},
+    {icon:'👑',title:'King Solomon',      verse:'1 Kings 3–10',  age:'6+',color:['#ffd54f','#f9a825']},
+    {icon:'⚡',title:"Elijah's Fire",     verse:'1 Kings 18',    age:'6+',color:['#ff6f00','#e65100']},
+    {icon:'🦁',title:"Daniel's Lions",    verse:'Daniel 6',      age:'4+',color:['#e53935','#b71c1c']},
+    {icon:'🐳',title:'Jonah & the Fish',  verse:'Jonah 1–4',     age:'4+',color:['#26c6da','#00838f']}
+  ],
+  NT:[
+    {icon:'⭐',title:'Jesus is Born',      verse:'Luke 2',       age:'4+',color:['#ffd54f','#ff9a3c']},
+    {icon:'🌟',title:'The Wise Men',       verse:'Matthew 2',    age:'4+',color:['#9575cd','#512da8']},
+    {icon:'🕊️',title:'Jesus is Baptized', verse:'Matthew 3',    age:'5+',color:['#29b6f6','#0288d1']},
+    {icon:'🚢',title:'Follow Me!',         verse:'Luke 5',       age:'5+',color:['#26a69a','#00796b']},
+    {icon:'📖',title:'Sermon on the Mount',verse:'Matthew 5–7',  age:'6+',color:['#66bb6a','#2e7d32']},
+    {icon:'🌊',title:'Calming the Storm',  verse:'Mark 4',       age:'4+',color:['#5c6bc0','#283593']},
+    {icon:'🍞',title:'Feeding 5,000',      verse:'John 6',       age:'4+',color:['#ffa726','#e65100']},
+    {icon:'🐑',title:'The Lost Sheep',     verse:'Luke 15',      age:'4+',color:['#66bb6a','#388e3c']},
+    {icon:'🏠',title:'The Lost Son',       verse:'Luke 15',      age:'5+',color:['#ff7043','#bf360c']},
+    {icon:'✨',title:'Lazarus Lives!',      verse:'John 11',      age:'5+',color:['#9575cd','#4527a0']},
+    {icon:'🌿',title:'Palm Sunday',        verse:'John 12',      age:'5+',color:['#66bb6a','#1b5e20']},
+    {icon:'🍷',title:'The Last Supper',    verse:'Luke 22',      age:'6+',color:['#ef5350','#b71c1c']},
+    {icon:'🌅',title:'He is Alive!',       verse:'John 20',      age:'4+',color:['#ffd54f','#ff8f00']},
+    {icon:'🔥',title:'The Holy Spirit',    verse:'Acts 2',       age:'5+',color:['#ff7043','#bf360c']}
+  ]
+};
+const GUIDES={3:{ot:"You're doing great!",nt:'Wow, keep going!'},7:{ot:'Halfway — amazing!',nt:"Bible superstar!"},11:{ot:'Almost done!',nt:'Nearly there!'}};
+
+/* ════════ STATE ════════ */
+let curTestament='OT', curIdx=0;
+const readSet={OT:new Set(),NT:new Set()};
+let reading=false, readIdx=0;
+let quizAnswered=[];
+
+/* ════════ VIEW NAVIGATION ════════ */
+function goToHub(){
+  show('hub'); hide('timeline'); hide('story'); stopReading();
+}
+function goToTimeline(t){
+  switchTestament(t);
+  show('timeline'); hide('hub'); hide('story'); stopReading();
+}
+function goBackToTimeline(){
+  show('timeline'); hide('story'); stopReading();
+}
+function openStoryView(testament,idx){
+  curTestament=testament; curIdx=idx;
+  loadStory(testament,idx);
+  show('story'); hide('timeline');
+}
+function show(id){document.getElementById(id).classList.remove('hidden')}
+function hide(id){document.getElementById(id).classList.add('hidden')}
+
+/* ════════ TIMELINE ════════ */
+function renderTimeline(t){
+  const track=document.getElementById('tl-track');
+  const path=document.getElementById('tl-path');
+  const stories=STORIES[t]; const isNT=t==='NT';
+  path.className='tl-path'+(isNT?' nt':'');
+  [...track.children].forEach(c=>{if(c!==path)c.remove()});
+  stories.forEach((s,i)=>{
+    if(GUIDES[i]){
+      const g=GUIDES[i],msg=isNT?g.nt:g.ot,ch=isNT?'👧':'👦';
+      const gs=document.createElement('div'); gs.className='guide-stop';
+      gs.style.animationDelay=`${i*.055}s`;
+      gs.innerHTML=`<div class="guide-bubble">${msg}</div><div class="guide-char">${ch}</div><div class="guide-stem"></div><div class="guide-node"></div>`;
+      track.appendChild(gs);
+    }
+    const done=readSet[t].has(i);
+    const bg=`linear-gradient(145deg,${s.color[0]},${s.color[1]})`;
+    const stemBg=`linear-gradient(to bottom,${s.color[0]},${s.color[1]})`;
+    const cc=`tl-card tl-${isNT?'nt':'ot'}${done?' done':''}`;
+    const dur=(2.8+((i*.31)%0.8)).toFixed(1);
+    const del=((i*.17)%0.6).toFixed(2);
+    const stop=document.createElement('div');
+    stop.className='stop'; stop.style.animationDelay=`${i*.055}s`;
+    stop.setAttribute('role','button'); stop.setAttribute('tabindex','0');
+    stop.innerHTML=`<div class="${cc}"><div class="tl-art" style="background:${bg}"><div class="tl-num">${i+1}</div><span class="tl-icon" style="--d:${dur}s;animation-delay:${del}s">${s.icon}</span></div><div class="tl-body"><div class="tl-card-title">${s.title}</div><div class="tl-verse">${s.verse}</div><div><span class="age-tag">Ages ${s.age}</span></div><button class="read-btn" tabindex="-1">${done?'✓ Read Again':'Read Story →'}</button></div></div><div class="stem" style="background:${stemBg}"></div><div class="node${done?' done':''}" style="${done?'':'background:'+s.color[1]}">${done?'✓':i+1}</div>`;
+    stop.onclick=()=>openStoryView(t,i);
+    stop.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openStoryView(t,i);}});
+    track.appendChild(stop);
+  });
+  updateProgress(t);
+}
+function updateProgress(t){
+  const done=readSet[t].size,total=STORIES[t].length,pct=(done/total)*100;
+  const stars=done>0?' '+'⭐'.repeat(Math.min(done,5)):'';
+  document.getElementById('progress-pill').textContent=`${done} / ${total}${stars}`;
+  document.getElementById('pb-fill').style.width=`${pct}%`;
+  document.getElementById('pb-fill').className='pb-fill'+(t==='NT'?' nt':'');
+}
+function switchTestament(t){
+  curTestament=t; const isNT=t==='NT';
+  document.getElementById('btn-ot').classList.toggle('active',!isNT);
+  document.getElementById('btn-nt').classList.toggle('active',isNT);
+  document.getElementById('tl-title').textContent=isNT?'New Testament Journey':'Old Testament Journey';
+  document.getElementById('tl-sub').textContent=isNT?'14 stories about Jesus — tap one to start!':'14 epic adventures — tap a story to begin!';
+  renderTimeline(t);
+  document.getElementById('tl-scroll').scrollLeft=0;
+}
+
+/* ════════ STORY VIEW ════════ */
+function loadStory(t,idx){
+  const s=STORIES[t][idx], c=SC[t][idx], isNT=t==='NT';
+  // Nav
+  document.getElementById('sv-counter').textContent=`${idx+1} of 14`;
+  const badge=document.getElementById('sv-badge');
+  badge.textContent=isNT?'✨ NT':'📜 OT';
+  badge.className='sv-badge '+(isNT?'nt':'ot');
+  // Hero
+  const hero=document.getElementById('sv-hero');
+  hero.style.background=`linear-gradient(145deg,${s.color[0]},${s.color[1]})`;
+  document.getElementById('sv-icon').textContent=s.icon;
+  document.getElementById('sv-title').textContent=s.title;
+  document.getElementById('sv-verse').textContent=s.verse;
+  // Read button colour
+  const rb=document.getElementById('sv-read-btn');
+  rb.className='sv-read-btn '+(isNT?'nt':'ot');
+  rb.textContent='🔊 Read to Me';
+  // Sentences
+  const sentBox=document.getElementById('sv-sentences');
+  sentBox.innerHTML=c.s.map((txt,i)=>`<div class="sv-sentence" id="ss${i}">${txt}</div>`).join('');
+  // Quiz
+  buildQuiz(c.q, isNT);
+  // Game
+  const gw=document.getElementById('sv-game-wrap');
+  if(c.game){
+    gw.style.display='block';
+    document.getElementById('sv-game-title').textContent=
+      c.game==='memory'?'🎮 Noah\'s Ark Animal Match!':c.game==='slingshot'?'🎮 David\'s Slingshot Challenge!':'🎮 Calm the Storm!';
+    buildGame(c.game,isNT);
+  } else {
+    gw.style.display='none';
+  }
+  // Scroll to top
+  document.getElementById('sv-scroll').scrollTop=0;
+  readIdx=0; reading=false;
+}
+
+/* ════════ QUIZ ════════ */
+function buildQuiz(qs, isNT){
+  quizAnswered=new Array(qs.length).fill(false);
+  const box=document.getElementById('sv-quiz-questions');
+  document.getElementById('sv-quiz-done').classList.remove('show');
+  box.innerHTML=qs.map((q,qi)=>`
+    <div class="sv-q" id="q${qi}">
+      <div class="sv-q-text">❓ ${q[0]}</div>
+      <div class="sv-opts">
+        ${q[1].map((opt,oi)=>`<button class="sv-opt" onclick="answerQ(${qi},${oi},${q[2]},${isNT})">${opt}</button>`).join('')}
+      </div>
+      <div class="sv-q-result" id="qr${qi}"></div>
+    </div>`).join('');
+}
+function answerQ(qi,chosen,correct,isNT){
+  if(quizAnswered[qi])return;
+  quizAnswered[qi]=true;
+  const qEl=document.getElementById(`q${qi}`);
+  const btns=qEl.querySelectorAll('.sv-opt');
+  btns.forEach((b,i)=>{
+    b.disabled=true;
+    if(i===correct)b.classList.add('correct');
+    if(i===chosen&&chosen!==correct)b.classList.add('wrong');
+  });
+  const res=document.getElementById(`qr${qi}`);
+  if(chosen===correct){
+    res.textContent='🌟 Correct! Well done!';
+  } else {
+    res.textContent='❌ Not quite — the answer is highlighted in green!';
+  }
+  if(quizAnswered.every(Boolean)){
+    setTimeout(()=>{
+      document.getElementById('sv-quiz-done').classList.add('show');
+      readSet[curTestament].add(curIdx);
+      renderTimeline(curTestament);
+    },600);
+  }
+}
+
+/* ════════ READ TO ME ════════ */
+function toggleReading(){
+  if(reading){stopReading();}else{startReading();}
+}
+function startReading(){
+  if(!('speechSynthesis' in window)){
+    alert('Read-to-Me works in Chrome and Safari!');return;
+  }
+  window.speechSynthesis.cancel();
+  reading=true; readIdx=0;
+  document.getElementById('sv-read-btn').textContent='⏸ Stop Reading';
+  readNext();
+}
+function stopReading(){
+  window.speechSynthesis.cancel();
+  reading=false;
+  const rb=document.getElementById('sv-read-btn');
+  if(rb)rb.textContent='🔊 Read to Me';
+  highlightSentence(-1);
+}
+function readNext(){
+  if(!reading)return;
+  const sentences=SC[curTestament][curIdx].s;
+  if(readIdx>=sentences.length){stopReading();return;}
+  highlightSentence(readIdx);
+  // scroll sentence into view
+  const el=document.getElementById(`ss${readIdx}`);
+  if(el)el.scrollIntoView({behavior:'smooth',block:'center'});
+  const utt=new SpeechSynthesisUtterance(sentences[readIdx]);
+  utt.rate=0.88; utt.pitch=1.05;
+  const voices=window.speechSynthesis.getVoices();
+  const v=voices.find(v=>v.lang.startsWith('en-')&&v.name.includes('Female'))||
+           voices.find(v=>v.lang.startsWith('en'))||voices[0];
+  if(v)utt.voice=v;
+  utt.onend=()=>{if(reading){readIdx++;readNext();}};
+  utt.onerror=()=>{if(reading){readIdx++;readNext();}};
+  window.speechSynthesis.speak(utt);
+}
+function highlightSentence(i){
+  document.querySelectorAll('.sv-sentence').forEach((el,j)=>el.classList.toggle('active',j===i));
+}
+
+/* ════════ NEXT STORY ════════ */
+function nextStory(){
+  const stories=STORIES[curTestament];
+  const next=(curIdx+1)%stories.length;
+  openStoryView(curTestament,next);
+}
+
+/* ════════ GAMES ════════ */
+function buildGame(type,isNT){
+  const box=document.getElementById('sv-game-box');
+  if(type==='memory') buildMemory(box);
+  else if(type==='slingshot') buildSlingshot(box);
+  else if(type==='storm') buildStorm(box);
+}
+
+/* — Noah's Ark Memory — */
+function buildMemory(box){
+  const animals=['🦁','🐘','🦒','🐸','🦋','🐑'];
+  let cards=[...animals,...animals].sort(()=>Math.random()-.5);
+  let flipped=[],matched=0,locked=false;
+  box.innerHTML=`<div class="mem-grid" id="mem-grid"></div>
+    <div class="mem-status" id="mem-status">Tap two cards to find matching animals! 🐾</div>
+    <div class="mem-win" id="mem-win"><h3>🎉 You matched them all!</h3><p>Noah would be proud — great memory!</p></div>`;
+  const grid=document.getElementById('mem-grid');
+  cards.forEach((emoji,i)=>{
+    const card=document.createElement('div');
+    card.className='mem-card'; card.dataset.emoji=emoji; card.dataset.idx=i;
+    card.innerHTML=`<div class="mem-card-inner"><div class="mem-front">?</div><div class="mem-back">${emoji}</div></div>`;
+    card.onclick=()=>{
+      if(locked||card.classList.contains('flipped')||card.classList.contains('matched'))return;
+      card.classList.add('flipped'); flipped.push(card);
+      if(flipped.length===2){
+        locked=true;
+        if(flipped[0].dataset.emoji===flipped[1].dataset.emoji){
+          flipped.forEach(c=>c.classList.add('matched'));
+          matched+=2; flipped=[];locked=false;
+          if(matched===cards.length){
+            document.getElementById('mem-win').classList.add('show');
+            document.getElementById('mem-status').textContent='Amazing! All animals are on the ark! 🚢';
+          }
+        } else {
+          setTimeout(()=>{
+            flipped.forEach(c=>c.classList.remove('flipped'));
+            flipped=[];locked=false;
+          },900);
+        }
+      }
+    };
+    grid.appendChild(card);
+  });
+}
+
+/* — David & Goliath Slingshot — */
+function buildSlingshot(box){
+  let thrown=false;
+  box.innerHTML=`
+    <div class="dg-arena" id="dg-arena">
+      <div class="dg-char"><div style="font-size:13px;font-weight:800;color:white;margin-bottom:4px">David</div><div class="dg-david">🧒</div></div>
+      <div class="dg-stone" id="dg-stone">🪨</div>
+      <div class="dg-char"><div style="font-size:13px;font-weight:800;color:white;margin-bottom:4px">Goliath</div><div class="dg-goliath" id="dg-goliath">🗡️👹</div></div>
+    </div>
+    <div class="dg-controls">
+      <button class="dg-btn" id="dg-btn" onclick="throwStone()">🪨 Throw the Stone!</button>
+      <div class="dg-msg" id="dg-msg">Help David defeat Goliath! Tap the button to throw your stone!</div>
+    </div>`;
+  window.throwStone=function(){
+    if(thrown)return;
+    thrown=true;
+    const stone=document.getElementById('dg-stone');
+    const btn=document.getElementById('dg-btn');
+    const goliath=document.getElementById('dg-goliath');
+    const msg=document.getElementById('dg-msg');
+    btn.disabled=true; btn.style.opacity='.5';
+    stone.style.display='block';
+    const arena=document.getElementById('dg-arena');
+    const w=arena.offsetWidth;
+    stone.style.left='80px'; stone.style.bottom='40px';
+    // animate
+    setTimeout(()=>{
+      stone.style.left=(w-90)+'px';
+      stone.style.bottom='60px';
+    },50);
+    setTimeout(()=>{
+      goliath.classList.add('fallen');
+      msg.textContent='💥 CRACK! The stone hit Goliath! God helped David win — with faith, anything is possible! 🌟';
+      btn.textContent='🌟 You did it!';
+      btn.style.background='linear-gradient(135deg,#43a047,#66bb6a)';
+      btn.style.opacity='1'; btn.disabled=false;
+      btn.onclick=()=>{
+        thrown=false; goliath.classList.remove('fallen');
+        stone.style.display='none'; stone.style.left='80px'; stone.style.bottom='40px';
+        btn.textContent='🪨 Throw the Stone!'; btn.style.background='';
+        btn.style.opacity='1'; msg.textContent='Try again! Tap to throw!';
+        btn.onclick=throwStone; btn.disabled=false;
+      };
+    },700);
+  };
+}
+
+/* — Calming the Storm — */
+function buildStorm(box){
+  let taps=0, total=25, calmed=false;
+  box.innerHTML=`
+    <div class="storm-box" id="storm-box">
+      <div class="storm-waves" id="storm-waves"></div>
+      <div class="storm-emoji" id="storm-emoji">⛵</div>
+      <div class="storm-sun" id="storm-sun">☀️</div>
+    </div>
+    <div class="storm-controls">
+      <div style="width:100%">
+        <div style="font-size:11px;font-weight:800;color:#4a6a80;margin-bottom:4px">Calm the storm: <span id="storm-pct">0</span>%</div>
+        <div class="storm-meter-wrap"><div class="storm-meter" id="storm-meter" style="width:100%"></div></div>
+      </div>
+      <button class="storm-btn" id="storm-btn" onclick="calmTap()">🌊 Tap to Calm the Storm!</button>
+      <div class="storm-msg" id="storm-msg">The storm is raging! Tap as fast as you can to calm it!</div>
+    </div>`;
+  window.calmTap=function(){
+    if(calmed)return;
+    taps++;
+    const pct=Math.min(100,Math.round((taps/total)*100));
+    const remaining=100-pct;
+    document.getElementById('storm-pct').textContent=pct;
+    document.getElementById('storm-meter').style.width=remaining+'%';
+    // speed up/slow down animation
+    const speed=Math.max(0.1,0.8*(1-taps/total));
+    document.getElementById('storm-waves').style.animationDuration=speed+'s';
+    if(taps>=total){
+      calmed=true;
+      document.getElementById('storm-waves').classList.add('calm');
+      document.getElementById('storm-emoji').classList.add('calm');
+      document.getElementById('storm-sun').classList.add('show');
+      document.getElementById('storm-box').style.background='linear-gradient(to bottom,#87ceeb,#4fc3f7)';
+      document.getElementById('storm-btn').textContent='🌟 Storm Calmed!';
+      document.getElementById('storm-btn').style.background='linear-gradient(135deg,#43a047,#66bb6a)';
+      document.getElementById('storm-msg').textContent='⛵ "Peace! Be still!" The sea is calm — just like Jesus commanded! Amazing!';
+    }
+  };
+}
+
+/* ════════ MODAL ════════ */
+function closeModal(){document.getElementById('modal').classList.remove('show')}
+
+/* ════════ INIT ════════ */
+document.querySelectorAll('.choice-card').forEach(c=>{
+  c.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();c.click();}});
+});
+renderTimeline('OT');
+
+// Preload speech voices
+if('speechSynthesis' in window){
+  window.speechSynthesis.getVoices();
+  window.speechSynthesis.onvoiceschanged=()=>window.speechSynthesis.getVoices();
+}
+</script>
+</body>
+</html>
