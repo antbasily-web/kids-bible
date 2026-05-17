@@ -274,9 +274,12 @@ body.theme-home .theme-deco.home{display:block}
 .ot-shepherd-fig{position:absolute;bottom:0;right:0;width:18px;height:38px}
 
 /* Tap interactivity hover affordance */
-.tap-egg{cursor:pointer;pointer-events:auto;transition:transform .2s}
-.tap-egg:hover{transform:scale(1.08)}
-.tap-egg:active{transform:scale(.92)}
+.tap-egg{cursor:grab;pointer-events:auto;transition:transform .2s,filter .2s}
+.tap-egg:hover{transform:scale(1.08);filter:drop-shadow(0 0 8px rgba(255,213,79,.5))}
+.tap-egg:active{cursor:grabbing}
+.tap-egg.dragging{transition:none;z-index:30;cursor:grabbing;filter:drop-shadow(0 6px 14px rgba(0,0,0,.4))}
+.tap-egg.released{animation:springBack .6s cubic-bezier(.34,1.8,.64,1)}
+@keyframes springBack{0%{transform:translate(0,0)}100%{transform:translate(0,0)}}
 
 /* Easter egg "+1!" floater */
 .egg-pop{position:fixed;font-family:var(--display);font-weight:700;font-size:18px;
@@ -549,6 +552,80 @@ body.in-game-play .star-bar{bottom:calc(var(--safe-bot) + 14px);left:16px;right:
 .logo-tag{font-family:var(--display);font-size:11px;font-weight:600;letter-spacing:3px;
   text-transform:uppercase;color:#fff;background:rgba(255,138,61,.85);
   padding:4px 12px;border-radius:999px;box-shadow:0 2px 8px rgba(0,0,0,.18)}
+
+/* ===== SPIRIT LAMB PET (Tamagotchi) ===== */
+.pet-card{position:relative;margin:8px 16px 18px;max-width:1100px;width:calc(100% - 32px);
+  background:linear-gradient(135deg,rgba(255,255,255,.98),rgba(255,250,242,.92));
+  border-radius:24px;padding:16px 18px;
+  display:flex;gap:16px;align-items:center;
+  box-shadow:0 14px 38px rgba(0,0,0,.18),0 4px 12px rgba(0,0,0,.1),
+             0 1px 0 rgba(255,255,255,.9) inset,0 -4px 0 rgba(0,0,0,.05) inset;
+  border:3px solid #fff}
+@media (min-width:1024px){.pet-card{margin:8px auto 18px;padding:20px 24px}}
+.pet-stage{position:relative;flex-shrink:0;width:96px;height:96px;
+  background:radial-gradient(circle at 50% 70%,#fff3e0 0%,transparent 60%),
+             radial-gradient(circle at 50% 100%,#a5d6a7 30%,#7cb342 90%);
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:inset 0 6px 14px rgba(0,0,0,.18),0 4px 12px rgba(0,0,0,.18);
+  cursor:pointer;overflow:hidden}
+.pet-stage svg{width:80%;height:80%;animation:petBob 2.2s ease-in-out infinite alternate;
+  transform-origin:center bottom}
+.pet-stage.bumped svg{animation:petBump .5s cubic-bezier(.34,1.8,.64,1)}
+@keyframes petBob{from{transform:translateY(0) rotate(-3deg)}to{transform:translateY(-4px) rotate(3deg)}}
+@keyframes petBump{0%{transform:translateY(0) scale(1)}40%{transform:translateY(-14px) scale(1.18)}100%{transform:translateY(0) scale(1)}}
+.pet-stage::before{content:'';position:absolute;inset:0;border-radius:50%;
+  background:radial-gradient(circle at 50% 30%,rgba(255,255,255,.4),transparent 50%);pointer-events:none}
+.pet-body{flex:1;min-width:0}
+.pet-name{font-family:var(--display);font-weight:700;font-size:18px;color:var(--ink);
+  display:flex;align-items:center;gap:8px}
+.pet-name .pet-level{background:#ffd54f;color:#bf6f1a;border-radius:999px;
+  padding:2px 9px;font-size:11px;letter-spacing:.5px}
+.pet-says{font-family:var(--display);font-weight:600;font-size:13px;color:var(--ink-soft);
+  margin-top:3px;min-height:18px;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.pet-meters{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.pet-meter{display:flex;align-items:center;gap:8px;font-family:var(--display);font-size:11px;font-weight:700;color:var(--ink-soft)}
+.pet-meter-label{width:60px;display:flex;align-items:center;gap:4px}
+.pet-meter-bar{flex:1;height:8px;background:rgba(26,58,92,.12);border-radius:5px;overflow:hidden}
+.pet-meter-fill{height:100%;border-radius:5px;transition:width .4s ease}
+.pet-meter.happy .pet-meter-fill{background:linear-gradient(to right,#ff8a65,#ffd54f)}
+.pet-meter.fed .pet-meter-fill{background:linear-gradient(to right,#aed581,#43a047)}
+.pet-meter.pray .pet-meter-fill{background:linear-gradient(to right,#90caf9,#7c4dff)}
+.pet-actions{flex-shrink:0;display:flex;flex-direction:column;gap:6px}
+.pet-btn{font-family:var(--display);font-weight:700;font-size:12px;color:#fff;
+  border-radius:999px;padding:8px 14px;min-height:36px;cursor:pointer;
+  display:inline-flex;align-items:center;gap:5px;
+  transition:transform .15s, box-shadow .2s}
+.pet-btn:active{transform:scale(.94)}
+.pet-btn.feed{background:linear-gradient(135deg,#ff8a65,#ff5722);
+  box-shadow:0 3px 0 #bf360c,0 4px 10px rgba(255,87,34,.4)}
+.pet-btn.pray{background:linear-gradient(135deg,#7c4dff,#3d5afe);
+  box-shadow:0 3px 0 #311b92,0 4px 10px rgba(124,77,255,.4)}
+.pet-btn:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none}
+@media (max-width:480px){
+  .pet-card{flex-direction:column;align-items:stretch;padding:12px 14px;gap:10px}
+  .pet-stage{align-self:center;width:80px;height:80px}
+  .pet-actions{flex-direction:row;justify-content:center}
+}
+
+/* Halo accessory at higher levels */
+.pet-halo{position:absolute;top:-2px;left:50%;transform:translateX(-50%);
+  width:46px;height:18px;border:3px solid #ffd54f;border-radius:50%;
+  border-bottom-color:transparent;
+  box-shadow:0 0 12px #ffd54f;opacity:0;pointer-events:none;transition:opacity .4s}
+.pet-stage.haloed .pet-halo{opacity:1;animation:haloFloat 2s ease-in-out infinite alternate}
+@keyframes haloFloat{from{transform:translateX(-50%) translateY(0)}to{transform:translateX(-50%) translateY(-4px)}}
+.pet-wings{position:absolute;top:48%;left:0;right:0;height:30px;
+  opacity:0;pointer-events:none;transition:opacity .4s}
+.pet-stage.winged .pet-wings{opacity:1}
+.pet-wings::before,.pet-wings::after{content:'';position:absolute;top:0;width:24px;height:30px;
+  background:radial-gradient(ellipse at 50% 100%,#fff,#e3f2fd);
+  border-radius:50% 50% 50% 50%/60% 60% 40% 40%;
+  animation:wingFlap 1.2s ease-in-out infinite alternate}
+.pet-wings::before{left:-8px;transform:rotate(-20deg)}
+.pet-wings::after{right:-8px;transform:rotate(20deg);animation-delay:-.6s}
+@keyframes wingFlap{from{transform:rotate(-20deg) scaleX(.9)}to{transform:rotate(-30deg) scaleX(1.1)}}
 
 /* ===== HUB ===== */
 #hub{align-items:center}
@@ -1188,6 +1265,44 @@ body.theme-library .theme-deco.library{display:block}
   font-family:var(--display);font-weight:700;font-size:14px;color:var(--ink)}
 .sl-cloud{position:absolute;background:#fff;border-radius:30px;width:50px;height:14px;z-index:1;
   box-shadow:14px 0 0 -3px #fff,-14px 0 0 -3px #fff;opacity:.9}
+
+/* ===== BIBLE CRUSH (match-3) ===== */
+.bc-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:10px;min-height:0}
+.bc-hud{flex-shrink:0;display:flex;gap:14px;font-family:var(--display);font-weight:700;color:var(--ink);
+  font-size:14px;align-items:center;flex-wrap:wrap;justify-content:center}
+.bc-hud b{color:var(--gold-d);font-size:16px}
+.bc-hud .bc-tick{width:8px;height:8px;border-radius:50%;background:#43a047;display:inline-block;
+  animation:liveDot 1.5s ease-in-out infinite;margin-right:4px}
+.bc-board{position:relative;display:grid;
+  grid-template-columns:repeat(7,1fr);
+  gap:4px;padding:8px;
+  background:linear-gradient(135deg,#1a3a5c,#3a6080);
+  border-radius:18px;
+  box-shadow:inset 0 6px 14px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.25);
+  width:min(95vw,420px);aspect-ratio:1;
+  touch-action:none}
+.bc-cell{position:relative;aspect-ratio:1;border-radius:10px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(255,255,255,.08);
+  transition:transform .18s cubic-bezier(.34,1.8,.64,1)}
+.bc-cell.sel{background:rgba(255,213,79,.35);box-shadow:0 0 0 3px #ffd54f inset;transform:scale(1.08)}
+.bc-cell.matched{animation:bcMatch .35s ease-out forwards}
+@keyframes bcMatch{0%{transform:scale(1)}50%{transform:scale(1.3);background:rgba(255,213,79,.6)}100%{transform:scale(0);opacity:0}}
+.bc-cell.dropping{animation:bcDrop .25s ease-in}
+@keyframes bcDrop{from{transform:translateY(-40px);opacity:.6}to{transform:translateY(0);opacity:1}}
+.bc-gem{width:78%;height:78%;display:flex;align-items:center;justify-content:center;
+  filter:drop-shadow(0 3px 6px rgba(0,0,0,.4))}
+.bc-gem svg{width:100%;height:100%}
+.bc-combo{position:absolute;font-family:var(--display);font-weight:700;font-size:28px;
+  color:#ffd54f;text-shadow:0 4px 12px rgba(0,0,0,.7);
+  pointer-events:none;z-index:5;
+  animation:bcCombo 1s ease-out forwards}
+@keyframes bcCombo{0%{opacity:0;transform:translate(-50%,-50%) scale(.4)}30%{opacity:1;transform:translate(-50%,-50%) scale(1.4)}100%{opacity:0;transform:translate(-50%,calc(-50% - 40px)) scale(1)}}
+.bc-hint{position:absolute;inset:0;border-radius:18px;pointer-events:none;
+  box-shadow:0 0 0 4px #ffd54f;animation:bcHint 1.5s ease-out forwards;opacity:0}
+@keyframes bcHint{0%{opacity:0}30%{opacity:1}100%{opacity:0}}
+.bc-msg{flex-shrink:0;font-family:var(--display);font-weight:700;color:var(--ink);
+  font-size:13px;text-align:center;padding:0 12px}
 
 /* Find the Sheep */
 .fs-arena{position:relative;flex:1;border-radius:18px;overflow:hidden;cursor:pointer;
@@ -2143,6 +2258,48 @@ body.theme-library .theme-deco.library{display:block}
     <div class="sparkle" style="top:38%;right:10%;animation-delay:.3s;width:12px;height:12px"></div>
   </div>
 
+  <div class="pet-card" id="pet-card">
+    <div class="pet-stage" id="pet-stage" role="button" aria-label="Your Spirit Lamb">
+      <div class="pet-halo"></div>
+      <div class="pet-wings"></div>
+      <svg id="pet-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <ellipse cx="50" cy="92" rx="28" ry="3" fill="rgba(0,0,0,.2)"/>
+        <!-- Wool body (size depends on level via JS) -->
+        <ellipse cx="50" cy="60" rx="26" ry="22" fill="#fff"/>
+        <circle cx="30" cy="52" r="12" fill="#fff"/>
+        <circle cx="70" cy="52" r="12" fill="#fff"/>
+        <circle cx="40" cy="40" r="10" fill="#fff"/>
+        <circle cx="60" cy="40" r="10" fill="#fff"/>
+        <circle cx="50" cy="36" r="11" fill="#fff"/>
+        <!-- Face -->
+        <ellipse cx="50" cy="48" rx="12" ry="11" fill="#fff8ec"/>
+        <circle cx="45" cy="46" r="1.6" fill="#1a3a5c"/>
+        <circle cx="55" cy="46" r="1.6" fill="#1a3a5c"/>
+        <ellipse cx="50" cy="53" rx="3" ry="2" fill="#ff8a65"/>
+        <path d="M46 56 Q50 58 54 56" stroke="#1a3a5c" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+        <!-- Ears -->
+        <ellipse cx="38" cy="38" rx="3" ry="6" fill="#fff8ec" transform="rotate(-25 38 38)"/>
+        <ellipse cx="62" cy="38" rx="3" ry="6" fill="#fff8ec" transform="rotate(25 62 38)"/>
+        <!-- Legs -->
+        <rect x="38" y="76" width="5" height="10" rx="2" fill="#fff8ec"/>
+        <rect x="57" y="76" width="5" height="10" rx="2" fill="#fff8ec"/>
+      </svg>
+    </div>
+    <div class="pet-body">
+      <div class="pet-name">Your Spirit Lamb <span class="pet-level" id="pet-level-tag">Lvl 1</span></div>
+      <div class="pet-says" id="pet-says">Hi! I'm hungry for stories…</div>
+      <div class="pet-meters">
+        <div class="pet-meter happy"><span class="pet-meter-label">😊 Happy</span><div class="pet-meter-bar"><div class="pet-meter-fill" id="pet-happy-fill" style="width:60%"></div></div></div>
+        <div class="pet-meter fed"><span class="pet-meter-label">🍞 Fed</span><div class="pet-meter-bar"><div class="pet-meter-fill" id="pet-fed-fill" style="width:60%"></div></div></div>
+        <div class="pet-meter pray"><span class="pet-meter-label">🙏 Faith</span><div class="pet-meter-bar"><div class="pet-meter-fill" id="pet-pray-fill" style="width:60%"></div></div></div>
+      </div>
+    </div>
+    <div class="pet-actions">
+      <button class="pet-btn feed" id="pet-feed-btn">🍞 Feed (3⭐)</button>
+      <button class="pet-btn pray" id="pet-pray-btn">🙏 Pray</button>
+    </div>
+  </div>
+
   <div class="hub-cards">
     <!-- OT TILE: cinematic desert mini-scene -->
     <button class="tcard ot" data-go="ot" aria-label="Old Testament">
@@ -2560,6 +2717,31 @@ body.theme-library .theme-deco.library{display:block}
     <div class="gh-sub">Pick a game and start playing!</div>
   </div>
   <div class="gh-grid">
+    <button class="gcard" data-game="crush">
+      <div class="gcard-art" style="background:linear-gradient(135deg,#ec407a,#7c4dff)">
+        <svg viewBox="0 0 80 72" xmlns="http://www.w3.org/2000/svg" style="width:62%;height:62%" aria-hidden="true">
+          <rect x="6" y="6" width="22" height="22" rx="4" fill="#fff" opacity=".95"/>
+          <polygon points="17,11 20,17 26,17 21,21 23,27 17,23 11,27 13,21 8,17 14,17" fill="#ffd54f"/>
+          <rect x="30" y="6" width="22" height="22" rx="4" fill="#fff" opacity=".95"/>
+          <circle cx="41" cy="17" r="6" fill="#ff5252"/>
+          <rect x="54" y="6" width="22" height="22" rx="4" fill="#fff" opacity=".95"/>
+          <path d="M58 12 L60 18 L66 20 L60 22 L58 28 L56 22 L50 20 L56 18 Z" fill="#43a047"/>
+          <rect x="6" y="30" width="22" height="22" rx="4" fill="#fff" opacity=".95"/>
+          <ellipse cx="17" cy="41" rx="7" ry="5" fill="#29b6f6"/>
+          <rect x="30" y="30" width="22" height="22" rx="4" fill="#ffd54f"/>
+          <rect x="38" y="34" width="6" height="14" fill="#fff"/>
+          <rect x="34" y="38" width="14" height="6" fill="#fff"/>
+          <rect x="54" y="30" width="22" height="22" rx="4" fill="#fff" opacity=".95"/>
+          <polygon points="65,34 67,40 73,42 67,44 65,50 63,44 57,42 63,40" fill="#9c27b0"/>
+          <rect x="6" y="54" width="70" height="12" rx="3" fill="#ffd54f" opacity=".9"/>
+          <text x="41" y="64" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="700" font-size="8" fill="#1a3a5c">MATCH 3+</text>
+        </svg>
+      </div>
+      <div class="gcard-body">
+        <div class="gcard-title">Bible Crush</div>
+        <div class="gcard-desc">Match 3 in a row! Cascade combos.</div>
+      </div>
+    </button>
     <button class="gcard" data-game="memory">
       <div class="gcard-art">
         <svg viewBox="0 0 90 72" xmlns="http://www.w3.org/2000/svg" style="width:60%;height:60%" aria-hidden="true">
@@ -2809,6 +2991,134 @@ const Stars = {
 window.addEventListener('DOMContentLoaded', ()=> Stars.paint());
 
 /* ============================================================
+   SPIRIT LAMB PET — Tamagotchi-style growth + stats
+   ============================================================ */
+const Pet = {
+  state:{ xp:0, happy:60, fed:60, pray:60, lastSeen:Date.now(), lastFeed:0, lastPray:0 },
+  load(){ try{ const s = JSON.parse(localStorage.getItem('iibible-pet')||'null');
+    if(s) this.state = Object.assign(this.state, s); }catch(e){}
+    this.decay();
+  },
+  save(){ try{ localStorage.setItem('iibible-pet', JSON.stringify(this.state)); }catch(e){} },
+  decay(){
+    // Stats decay over time since lastSeen (1 point per 10 min for happy, 5 min for fed)
+    const now = Date.now();
+    const mins = Math.max(0, (now - this.state.lastSeen) / 60000);
+    this.state.happy = Math.max(0, this.state.happy - mins/10);
+    this.state.fed   = Math.max(0, this.state.fed   - mins/5);
+    this.state.pray  = Math.max(0, this.state.pray  - mins/15);
+    this.state.lastSeen = now;
+    this.save();
+  },
+  level(){ return Math.min(20, 1 + Math.floor(this.state.xp / 5)); },
+  stage(){ const l = this.level();
+    if(l<=2) return 'baby';
+    if(l<=6) return 'child';
+    if(l<=12) return 'youth';
+    if(l<=18) return 'adult';
+    return 'angel';
+  },
+  speak(){
+    const l = this.level();
+    const lines = [];
+    if(this.state.fed < 30) lines.push("I'm so hungry! Feed me with stars?");
+    if(this.state.happy < 30) lines.push("Will you read a story with me?");
+    if(this.state.pray < 30) lines.push("Let's pray together. Tap 🙏");
+    if(this.state.fed > 80 && this.state.happy > 80 && this.state.pray > 80) lines.push("I feel so blessed! ✨");
+    if(l>=5 && l<10) lines.push("I'm growing stronger! Thank you!");
+    if(l>=10) lines.push("I'm full of light because of you!");
+    if(l>=15) lines.push("My halo is shining bright! 😇");
+    if(lines.length===0){
+      const idle = ['Hi friend!','I love you!','Ready for an adventure?','Bible time?','Baa! I missed you!','Tap a tile to start!'];
+      lines.push(idle[Math.floor(Math.random()*idle.length)]);
+    }
+    return lines[Math.floor(Math.random()*lines.length)];
+  },
+  paint(){
+    const stage = document.getElementById('pet-stage');
+    const svg   = document.getElementById('pet-svg');
+    const says  = document.getElementById('pet-says');
+    const ltag  = document.getElementById('pet-level-tag');
+    const h = document.getElementById('pet-happy-fill');
+    const f = document.getElementById('pet-fed-fill');
+    const p = document.getElementById('pet-pray-fill');
+    if(!stage) return;
+    h.style.width = Math.round(this.state.happy)+'%';
+    f.style.width = Math.round(this.state.fed)+'%';
+    p.style.width = Math.round(this.state.pray)+'%';
+    const lvl = this.level();
+    ltag.textContent = 'Lvl '+lvl;
+    if(says) says.textContent = this.speak();
+    // Stage visuals: halo at adult+, wings at angel
+    stage.classList.toggle('haloed', lvl>=10);
+    stage.classList.toggle('winged', lvl>=15);
+    // Size grows subtly with level
+    const scale = Math.min(1.15, 0.85 + lvl*0.015);
+    svg.style.transform = 'scale('+scale+')';
+    // Feed button cool-down based on stars
+    const feedBtn = document.getElementById('pet-feed-btn');
+    if(feedBtn) feedBtn.disabled = Stars.count < 3;
+  },
+  feed(){
+    if(Stars.count < 3) return;
+    Stars.count = Stars.count - 3;     // setter triggers paint
+    this.state.fed = Math.min(100, this.state.fed + 35);
+    this.state.happy = Math.min(100, this.state.happy + 8);
+    this.state.xp += 1;
+    this.state.lastFeed = Date.now();
+    this.save();
+    this.paint();
+    const stage = document.getElementById('pet-stage');
+    if(stage){ stage.classList.remove('bumped'); void stage.offsetWidth; stage.classList.add('bumped'); }
+    Snd.match();
+  },
+  pray(){
+    this.state.pray = Math.min(100, this.state.pray + 30);
+    this.state.happy = Math.min(100, this.state.happy + 12);
+    this.state.xp += 1;
+    this.state.lastPray = Date.now();
+    this.save();
+    this.paint();
+    const stage = document.getElementById('pet-stage');
+    if(stage){ stage.classList.remove('bumped'); void stage.offsetWidth; stage.classList.add('bumped'); }
+    if(!Snd.muted){ Snd.tone(523.25,0.3,'sine',0.08); Snd.tone(659.25,0.3,'sine',0.08,0.15); Snd.tone(783.99,0.5,'sine',0.1,0.3); }
+    const says = document.getElementById('pet-says');
+    if(says) says.textContent = 'Thank you for praying with me… 🙏';
+  },
+  pet(){
+    // Tap reaction
+    this.state.happy = Math.min(100, this.state.happy + 4);
+    this.save();
+    this.paint();
+    const stage = document.getElementById('pet-stage');
+    if(stage){ stage.classList.remove('bumped'); void stage.offsetWidth; stage.classList.add('bumped'); }
+    if(!Snd.muted) Snd.tone(440 + Math.random()*200, 0.18, 'sine', 0.08);
+    const says = document.getElementById('pet-says');
+    if(says) says.textContent = ['Baaa!','Hehe that tickles!','I love you!','You\'re my friend!'][Math.floor(Math.random()*4)];
+  },
+  // On story / quiz / game completion — pet gains XP and happiness
+  reward(xp, happy){
+    this.state.xp += xp;
+    this.state.happy = Math.min(100, this.state.happy + (happy||5));
+    this.save();
+    this.paint();
+  }
+};
+
+window.addEventListener('DOMContentLoaded', ()=>{
+  Pet.load();
+  Pet.paint();
+  const stage = document.getElementById('pet-stage');
+  const feed = document.getElementById('pet-feed-btn');
+  const pray = document.getElementById('pet-pray-btn');
+  if(stage) stage.addEventListener('click', ()=> Pet.pet());
+  if(feed)  feed.addEventListener('click', ()=> Pet.feed());
+  if(pray)  pray.addEventListener('click', ()=> Pet.pray());
+  // Refresh pet state every minute (decay updates)
+  setInterval(()=>{ Pet.decay(); Pet.paint(); }, 60000);
+});
+
+/* ============================================================
    EASTER EGGS — tap scene elements for surprises
    ============================================================ */
 const Eggs = {
@@ -2882,6 +3192,62 @@ document.addEventListener('click', function(e){
   // Once-per-day star award
   if(Eggs.mark(egg)) Stars.award(1, 'Found a secret!');
 });
+
+/* ============================================================
+   DRAG-TO-MOVE SCENE CHARACTERS
+   ============================================================ */
+(function(){
+  let drag = null;
+  document.addEventListener('pointerdown', function(e){
+    const el = e.target.closest('.tap-egg');
+    if(!el) return;
+    // Only allow drag if pointer holds (>120ms) — tap still works as egg
+    drag = { el, sx:e.clientX, sy:e.clientY, ox:0, oy:0,
+             // Existing transform from animation may not be set; we use translate overlay
+             started:false, t0:performance.now() };
+    el.setPointerCapture && el.setPointerCapture(e.pointerId);
+  }, true);
+  document.addEventListener('pointermove', function(e){
+    if(!drag) return;
+    const dx = e.clientX - drag.sx, dy = e.clientY - drag.sy;
+    if(!drag.started){
+      if(Math.hypot(dx,dy) > 10){
+        drag.started = true;
+        drag.el.classList.add('dragging');
+        // Cancel default animation so drag isn't fighting it
+        drag.prevAnim = drag.el.style.animation;
+        drag.el.style.animation = 'none';
+        drag.prevTransform = drag.el.style.transform || '';
+      } else { return; }
+    }
+    drag.el.style.transform = drag.prevTransform + ' translate('+dx+'px,'+dy+'px)';
+  });
+  document.addEventListener('pointerup', function(){
+    if(!drag) return;
+    if(drag.started){
+      const el = drag.el;
+      el.classList.remove('dragging');
+      // Spring back to origin
+      el.style.transition = 'transform .55s cubic-bezier(.34,1.8,.64,1)';
+      el.style.transform = drag.prevTransform || '';
+      setTimeout(()=>{
+        el.style.transition = '';
+        el.style.transform = '';
+        el.style.animation = drag.prevAnim || '';
+      }, 580);
+      if(!Snd.muted) Snd.tone(660,0.1,'sine',0.06);
+    }
+    drag = null;
+  });
+  document.addEventListener('pointercancel', function(){
+    if(drag && drag.started){
+      drag.el.classList.remove('dragging');
+      drag.el.style.transform = drag.prevTransform || '';
+      drag.el.style.animation = drag.prevAnim || '';
+    }
+    drag = null;
+  });
+})();
 
 /* ============================================================
    TAP-ANYWHERE SPARKLE BURST
@@ -3085,9 +3451,15 @@ function markDone(t,i){ if(!state.done[t].includes(i)){ state.done[t].push(i); p
 
 function go(hash){ if(location.hash === hash) onRoute(); else location.hash = hash; }
 function setTheme(name){
+  // Preserve helper body classes when swapping themes
   document.body.className = 'theme-' + name;
   // Restart ambient pad to match
   if(!Snd.muted && Snd.ctx){ Ambient.start(name); }
+}
+function setBodyState(viewId){
+  document.body.classList.toggle('in-story', viewId==='story');
+  document.body.classList.toggle('in-game-play', viewId==='game');
+  document.body.classList.toggle('in-library', viewId==='library');
 }
 function showView(id){
   ['hub','timeline','story','games','game','library'].forEach(v=>{
@@ -3101,6 +3473,8 @@ function showView(id){
   else if(id==='timeline' || id==='story') setTheme(state.testament);
   else if(id==='games' || id==='game') setTheme('games');
   else if(id==='library') setTheme('library');
+  // Body state for star-bar repositioning so it doesn't block topbar/bottom-bar
+  setBodyState(id);
 }
 function onRoute(){
   const h = location.hash || '#/hub';
@@ -3234,7 +3608,7 @@ svBack.addEventListener('click', ()=> go('#/timeline/'+state.testament));
 svNext.addEventListener('click', ()=>{
   const wasDone = state.done[state.testament].includes(state.storyIdx);
   markDone(state.testament, state.storyIdx);
-  if(!wasDone){ Stars.award(2, 'Story finished!'); }
+  if(!wasDone){ Stars.award(2, 'Story finished!'); Pet.reward(2, 15); }
   const next = state.storyIdx + 1;
   if(next < STORIES[state.testament].length) go('#/story/'+state.testament+'/'+next);
   else go('#/timeline/'+state.testament);
@@ -3355,7 +3729,7 @@ function renderBody(){
         const parent = opt.closest('.sv-opts');
         if(parent.dataset.locked) return;
         parent.dataset.locked = '1';
-        if(opt.dataset.correct === '1'){ opt.classList.add('correct'); Snd.ding(); Stars.award(1, 'Correct!'); }
+        if(opt.dataset.correct === '1'){ opt.classList.add('correct'); Snd.ding(); Stars.award(1, 'Correct!'); Pet.reward(1, 4); }
         else {
           opt.classList.add('wrong'); Snd.buzz();
           parent.querySelectorAll('.sv-opt').forEach(function(o){
@@ -3496,7 +3870,16 @@ function buildLibraryList(){
     {id:'7cWu5A1z4es', title:'How Jesus Teaches Us to Love', sub:'7 stories', cat:'devo'},
     {id:'jEV87ZTI6rk', title:'What Makes a Good Friend?', sub:'18 minutes of devotional', cat:'devo'},
     {id:'DXMOFB_djxk', title:'11 Bible Stories to Build Strong Kids', sub:'Character compilation', cat:'devo'},
-    {id:'ENcFFIvBfyk', title:'David’s Biggest Mistake', sub:'Forgiveness story', cat:'ot'}
+    {id:'ENcFFIvBfyk', title:'David’s Biggest Mistake', sub:'Forgiveness story', cat:'ot'},
+    // Coptic Orthodox Saints (Coptic Animations Team — English)
+    {id:'EuhG0AoOj6o', title:'Saint Mary the Theotokos', sub:'Mother of God', cat:'saint'},
+    {id:'MF-Fnewahhw', title:'Saint George, Prince of Martyrs', sub:'Faith and bravery', cat:'saint'},
+    {id:'4BNp36QxIlk', title:'Story of Saint Mina', sub:'The Wonderworker', cat:'saint'},
+    {id:'rmZ74ZsyqOI', title:'Saint Anthony &amp; Saint Paul', sub:'Desert fathers', cat:'saint'},
+    {id:'4rWyeTTXnzg', title:'Saint Verena', sub:'Animated story', cat:'saint'},
+    {id:'IfGBR8IHhrs', title:'Saint Marina the Nun', sub:'Animated story', cat:'saint'},
+    {id:'R2rZHs-M2Tw', title:'Saint Moses the Strong', sub:'Repentance story', cat:'saint'},
+    {id:'tYad61fogoY', title:'Saint Macarius of Alexandria', sub:'Animated story', cat:'saint'}
   ];
   // De-dupe by id (the same video might exist as a "main story" + extra)
   const seen = new Set();
@@ -3520,8 +3903,8 @@ const libAutoNum = document.getElementById('lib-autonext-num');
 const libAutoFg = document.getElementById('lib-autonext-fg');
 const libAutoCancel = document.getElementById('lib-autonext-cancel');
 
-function catLabel(c){ return c==='ot'?'Old Testament':c==='nt'?'New Testament':c==='song'?'Song':c==='devo'?'Devotional':'Video'; }
-function catColor(c){ return c==='ot'?'#ff8a3d':c==='nt'?'#29b6f6':c==='song'?'#ce93d8':c==='devo'?'#81c784':'#fff'; }
+function catLabel(c){ return c==='ot'?'Old Testament':c==='nt'?'New Testament':c==='song'?'Song':c==='devo'?'Devotional':c==='saint'?'Saint':'Video'; }
+function catColor(c){ return c==='ot'?'#ff8a3d':c==='nt'?'#29b6f6':c==='song'?'#ce93d8':c==='devo'?'#81c784':c==='saint'?'#ffd54f':'#fff'; }
 
 let currentPlaying = null;
 let queue = []; // ordered upcoming videos
@@ -3577,6 +3960,7 @@ function renderLibrary(){
   const nt = LIBRARY.filter(v=> v.cat==='nt');
   const songs = LIBRARY.filter(v=> v.cat==='song');
   const devo = LIBRARY.filter(v=> v.cat==='devo');
+  const saints = LIBRARY.filter(v=> v.cat==='saint');
 
   libScroll.innerHTML =
     // Hero
@@ -3593,6 +3977,7 @@ function renderLibrary(){
     + rowHtml('▶ Continue Watching', historyItems)
     + rowHtml('📜 Old Testament Stories', ot)
     + rowHtml('✨ Jesus &amp; New Testament', nt)
+    + rowHtml('☦ Coptic Saints (English)', saints)
     + rowHtml('🎵 Songs &amp; Worship', songs)
     + rowHtml('💛 Devotionals', devo);
 
@@ -3711,6 +4096,7 @@ function openGame(id){
   else if(id==='stars') startStars();
   else if(id==='sling') startSling();
   else if(id==='sheep') startFindSheep();
+  else if(id==='crush') startCrush();
   else { gvTitle.textContent='Game'; gvBody.innerHTML='<p style="text-align:center;padding:40px">Coming soon!</p>'; }
 }
 
@@ -4048,93 +4434,420 @@ function startSling(){
   });
 }
 
-/* ----- Find the Sheep ----- */
+/* ----- Find the Sheep — 3 levels, hopping sheep, hint, bonus ----- */
 function startFindSheep(){
   gvTitle.textContent = 'Find the Sheep';
-  const total = 5;
-  let found = 0;
-  function paintScore(){ gvScore.textContent = found + ' / ' + total; }
-  paintScore();
 
-  const sheepSVG = '<svg viewBox="0 0 54 42" xmlns="http://www.w3.org/2000/svg">'
-    + '<ellipse cx="27" cy="38" rx="20" ry="3" fill="rgba(0,0,0,.18)"/>'
-    + '<ellipse cx="27" cy="24" rx="20" ry="13" fill="#fff"/>'
-    + '<circle cx="10" cy="20" r="6" fill="#fff"/><circle cx="44" cy="20" r="6" fill="#fff"/>'
-    + '<circle cx="18" cy="14" r="6" fill="#fff"/><circle cx="36" cy="14" r="6" fill="#fff"/>'
-    + '<circle cx="27" cy="10" r="6" fill="#fff"/>'
-    + '<ellipse cx="27" cy="22" rx="9" ry="8" fill="#fff8ec"/>'
-    + '<circle cx="23" cy="21" r="1.5" fill="#1a3a5c"/><circle cx="31" cy="21" r="1.5" fill="#1a3a5c"/>'
-    + '<ellipse cx="27" cy="27" rx="3" ry="2" fill="#1a3a5c"/>'
-    + '<ellipse cx="18" cy="16" rx="2.5" ry="4" fill="#fff8ec"/><ellipse cx="36" cy="16" rx="2.5" ry="4" fill="#fff8ec"/>'
-    + '<rect x="18" y="34" width="3" height="6" fill="#1a3a5c"/>'
-    + '<rect x="33" y="34" width="3" height="6" fill="#1a3a5c"/>'
-    + '</svg>';
+  const sheepSVG = `<svg viewBox="0 0 60 48" xmlns="http://www.w3.org/2000/svg">
+    <ellipse cx="30" cy="44" rx="22" ry="3" fill="rgba(0,0,0,.22)"/>
+    <ellipse cx="30" cy="26" rx="22" ry="14" fill="#fff" stroke="#e0e0e0" stroke-width="1"/>
+    <circle cx="10" cy="22" r="7" fill="#fff" stroke="#e0e0e0" stroke-width="1"/>
+    <circle cx="50" cy="22" r="7" fill="#fff" stroke="#e0e0e0" stroke-width="1"/>
+    <circle cx="18" cy="14" r="7" fill="#fff" stroke="#e0e0e0" stroke-width="1"/>
+    <circle cx="42" cy="14" r="7" fill="#fff" stroke="#e0e0e0" stroke-width="1"/>
+    <circle cx="30" cy="10" r="7" fill="#fff" stroke="#e0e0e0" stroke-width="1"/>
+    <ellipse cx="30" cy="24" rx="11" ry="10" fill="#fff8ec"/>
+    <circle cx="25" cy="23" r="1.8" fill="#1a3a5c"/>
+    <circle cx="35" cy="23" r="1.8" fill="#1a3a5c"/>
+    <ellipse cx="25" cy="22" r="0" fill="#fff"/>
+    <circle cx="25.5" cy="22.5" r=".5" fill="#fff"/>
+    <circle cx="35.5" cy="22.5" r=".5" fill="#fff"/>
+    <ellipse cx="30" cy="30" rx="3" ry="2" fill="#1a3a5c"/>
+    <path d="M26 32 Q30 35 34 32" stroke="#1a3a5c" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+    <ellipse cx="18" cy="16" rx="3" ry="5" fill="#fff8ec" transform="rotate(-15 18 16)"/>
+    <ellipse cx="42" cy="16" rx="3" ry="5" fill="#fff8ec" transform="rotate(15 42 16)"/>
+    <rect x="20" y="38" width="3.5" height="8" rx="1" fill="#1a3a5c"/>
+    <rect x="36.5" y="38" width="3.5" height="8" rx="1" fill="#1a3a5c"/>
+  </svg>`;
+  const lostSheepSVG = sheepSVG.replace('<ellipse cx="30" cy="30" rx="3" ry="2" fill="#1a3a5c"/>',
+    '<ellipse cx="30" cy="30" rx="3" ry="2" fill="#1a3a5c"/><circle cx="30" cy="40" r="3" fill="#ffd54f" stroke="#bf6f1a" stroke-width="1"/><circle cx="30" cy="40" r="1" fill="#bf6f1a"/>');
 
-  // hand-placed positions so sheep partially overlap bushes/trees but stay tappable
-  const positions = [
-    {x:14, y:54},
-    {x:38, y:38},
-    {x:62, y:60},
-    {x:78, y:34},
-    {x:24, y:70}
+  const LEVELS = [
+    {n:1, total:5, time:45, hopMs:5000},
+    {n:2, total:7, time:50, hopMs:3500},
+    {n:3, total:10, time:55, hopMs:2500}
   ];
-  const bushes = [
-    {x:8, y:62, w:90, h:42},
-    {x:55, y:68, w:110, h:50},
-    {x:32, y:46, w:80, h:38}
-  ];
-  const trees = [
-    {x:72, y:24},
-    {x:5, y:30}
-  ];
+  let levelIdx = 0;
+  let hintsLeft = 1;
+  let usedHint = false;
+  let allFound = 0;
 
-  let timeLeft = 60;
+  function setupRound(){
+    const L = LEVELS[levelIdx];
+    let found = 0;
+    let timeLeft = L.time;
+    hintsLeft = 1;
+    usedHint = false;
+    function paint(){ gvScore.innerHTML = 'Lvl '+L.n+' · '+found+'/'+L.total+' · ⏱'+timeLeft+'s · 💡 '+hintsLeft; }
+    paint();
 
-  gvBody.innerHTML = '<div class="fs-arena" id="fs-arena">'
-    + '<div class="fs-cloud" style="top:6%;left:14%;width:60px;height:18px"></div>'
-    + '<div class="fs-cloud" style="top:12%;right:18%;width:48px;height:14px"></div>'
-    + '<div class="fs-hill" style="bottom:0;left:-10%;width:60%;height:38%"></div>'
-    + '<div class="fs-hill" style="bottom:0;right:-15%;width:70%;height:46%;background:#33691e"></div>'
-    + trees.map(t=>'<div class="fs-tree" style="left:'+t.x+'%;top:'+t.y+'%"></div>').join('')
-    + bushes.map(b=>'<div class="fs-bush" style="left:'+b.x+'%;top:'+b.y+'%;width:'+b.w+'px;height:'+b.h+'px"></div>').join('')
-    + positions.map((p,i)=> '<div class="fs-sheep" data-i="'+i+'" style="left:'+p.x+'%;top:'+p.y+'%">'+sheepSVG+'</div>').join('')
-    + '</div>'
-    + '<div class="fs-status" id="fs-status">Tap all 5 sheep — some are hiding!</div>';
-
-  const arena = document.getElementById('fs-arena');
-  const status = document.getElementById('fs-status');
-
-  function finish(won){
-    const win = document.createElement('div');
-    win.className = 'mm-win';
-    if(won){
-      win.innerHTML = '<h2>🐑 All found!</h2><p>The shepherd is so happy!</p><button id="fs-again">Play Again</button>';
-      Snd.win();
-    } else {
-      win.innerHTML = '<h2>Time’s up</h2><p>You found '+found+' of '+total+' sheep.</p><button id="fs-again">Try Again</button>';
+    // Build random non-overlapping positions
+    const positions = [];
+    let tries=0;
+    while(positions.length < L.total && tries < 200){
+      const x = 6 + Math.random()*80;
+      const y = 25 + Math.random()*55;
+      if(positions.every(p=> Math.abs(p.x-x) > 9 || Math.abs(p.y-y) > 14)){
+        positions.push({x,y});
+      }
+      tries++;
     }
-    arena.appendChild(win);
-    document.getElementById('fs-again').addEventListener('click', startFindSheep);
+
+    // Sky decoration with sun rays
+    gvBody.innerHTML = `
+      <div class="fs-arena" id="fs-arena">
+        <!-- Sky + clouds -->
+        <svg style="position:absolute;inset:0;width:100%;height:100%;z-index:0" viewBox="0 0 100 100" preserveAspectRatio="none">
+          <defs><linearGradient id="fs-sky" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#bce6fa"/><stop offset=".55" stop-color="#a5d6a7"/><stop offset="1" stop-color="#33691e"/>
+          </linearGradient></defs>
+          <rect width="100" height="100" fill="url(#fs-sky)"/>
+          <circle cx="80" cy="14" r="8" fill="#fff7c2" opacity=".5"/>
+          <circle cx="80" cy="14" r="5" fill="#fff"/>
+        </svg>
+        <div class="fs-cloud" style="top:6%;left:14%;width:50px;height:14px"></div>
+        <div class="fs-cloud" style="top:12%;right:22%;width:40px;height:12px"></div>
+        <div class="fs-hill" style="bottom:0;left:-10%;width:60%;height:38%"></div>
+        <div class="fs-hill" style="bottom:0;right:-15%;width:70%;height:46%;background:#33691e"></div>
+        <div class="fs-tree" style="left:75%;top:24%"></div>
+        <div class="fs-tree" style="left:4%;top:30%"></div>
+        <div class="fs-bush" style="left:10%;top:62%;width:80px;height:38px"></div>
+        <div class="fs-bush" style="left:55%;top:68%;width:100px;height:46px"></div>
+        <div class="fs-bush" style="left:35%;top:46%;width:70px;height:34px"></div>
+        ${positions.map((p,i)=>{
+          const lost = (i === L.total-1); // last one wears the bell
+          return `<div class="fs-sheep" data-i="${i}" style="left:${p.x}%;top:${p.y}%;width:54px;height:42px">${lost?lostSheepSVG:sheepSVG}</div>`;
+        }).join('')}
+        <!-- Shepherd silhouette in corner -->
+        <svg style="position:absolute;bottom:2%;right:3%;width:46px;height:62px;z-index:5" viewBox="0 0 46 62" xmlns="http://www.w3.org/2000/svg">
+          <ellipse cx="23" cy="60" rx="14" ry="2" fill="rgba(0,0,0,.3)"/>
+          <rect x="16" y="24" width="14" height="32" rx="3" fill="#5d4037"/>
+          <circle cx="23" cy="16" r="10" fill="#a1714c"/>
+          <rect x="13" y="10" width="20" height="4" rx="2" fill="#3e2723"/>
+          <line x1="32" y1="26" x2="44" y2="2" stroke="#5d4037" stroke-width="2" stroke-linecap="round"/>
+          <path d="M44 2 Q47 1 47 4 Q47 7 44 6" stroke="#5d4037" stroke-width="2" fill="none" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="fs-status">
+        <button id="fs-hint" style="background:#ffd54f;color:#1a3a5c;border-radius:999px;padding:8px 18px;font-family:var(--display);font-weight:700;font-size:13px;min-height:38px;box-shadow:0 3px 0 #bf6f1a">💡 Hint (${hintsLeft} left)</button>
+        <span style="margin-left:14px">Find all ${L.total} sheep — the lost one has a bell!</span>
+      </div>`;
+
+    const arena = document.getElementById('fs-arena');
+    const sheep = Array.from(arena.querySelectorAll('.fs-sheep'));
+
+    // Hopping animation — sheep jump to new random spots periodically
+    function hopOne(){
+      const liveSheep = sheep.filter(s=> !s.classList.contains('found'));
+      if(!liveSheep.length) return;
+      const s = liveSheep[Math.floor(Math.random()*liveSheep.length)];
+      // Pick new pos
+      let tries=0;
+      let nx = 6 + Math.random()*80;
+      let ny = 25 + Math.random()*55;
+      while(tries<20){
+        if(positions.every(p=> Math.abs(p.x-nx) > 9 || Math.abs(p.y-ny) > 14)){ break; }
+        nx = 6 + Math.random()*80;
+        ny = 25 + Math.random()*55;
+        tries++;
+      }
+      const idx = parseInt(s.dataset.i);
+      positions[idx] = {x:nx, y:ny};
+      s.style.transition = 'left .55s cubic-bezier(.34,1.8,.64,1), top .55s cubic-bezier(.34,1.8,.64,1)';
+      s.style.left = nx + '%';
+      s.style.top  = ny + '%';
+    }
+    const hopper = setInterval(hopOne, L.hopMs);
+    gameTimers.push(hopper);
+
+    sheep.forEach(el=>{
+      el.addEventListener('click', (e)=>{
+        e.stopPropagation();
+        if(el.classList.contains('found')) return;
+        el.classList.add('found');
+        found++; allFound++; paint();
+        Snd.match();
+        // Confetti burst at sheep position
+        const r = el.getBoundingClientRect();
+        for(let i=0;i<6;i++){
+          const angle = (Math.PI*2/6)*i;
+          const p = document.createElement('div');
+          p.className='tap-burst';
+          p.style.left=(r.left+r.width/2)+'px';
+          p.style.top=(r.top+r.height/2)+'px';
+          p.style.setProperty('--bx', Math.cos(angle)*30 + 'px');
+          p.style.setProperty('--by', Math.sin(angle)*30 + 'px');
+          document.body.appendChild(p); setTimeout(()=> p.remove(), 800);
+        }
+        if(found === L.total){
+          clearInterval(hopper); clearInterval(ticker);
+          const bonus = usedHint ? 0 : 1;
+          const earned = 2 + bonus + L.n;
+          Stars.award(earned, (bonus?'Perfect Lvl '+L.n+'!':'Level '+L.n+' done!'));
+          Pet.reward(earned, 10);
+          Snd.win();
+          setTimeout(()=>{
+            const next = levelIdx + 1;
+            if(next < LEVELS.length){
+              levelIdx = next;
+              const banner = document.createElement('div');
+              banner.className = 'mm-win';
+              banner.innerHTML = '<h2>🎉 Level '+L.n+' done!</h2><p>+'+earned+' ⭐. Ready for level '+(L.n+1)+'?</p><button id="fs-next">Next Level</button>';
+              arena.appendChild(banner);
+              document.getElementById('fs-next').addEventListener('click', ()=>{ banner.remove(); setupRound(); });
+            } else {
+              const win = document.createElement('div');
+              win.className = 'mm-win';
+              win.innerHTML = '<h2>🐑 You found all the sheep!</h2><p>Total found: <b>'+allFound+'</b></p><button id="fs-again">Play Again</button>';
+              arena.appendChild(win);
+              document.getElementById('fs-again').addEventListener('click', ()=>{ levelIdx=0; allFound=0; setupRound(); });
+            }
+          }, 700);
+        }
+      });
+    });
+
+    const hintBtn = document.getElementById('fs-hint');
+    hintBtn.addEventListener('click', ()=>{
+      if(hintsLeft<=0) return;
+      hintsLeft--; usedHint = true;
+      hintBtn.textContent = '💡 Hint ('+hintsLeft+' left)';
+      hintBtn.disabled = hintsLeft<=0;
+      // Flash the lost sheep (last index) if still hidden, else any live sheep
+      let target = sheep[L.total-1];
+      if(target.classList.contains('found')){
+        const live = sheep.filter(s=> !s.classList.contains('found'));
+        target = live[Math.floor(Math.random()*live.length)];
+      }
+      if(target){
+        target.style.transition = 'filter .3s';
+        target.style.filter = 'drop-shadow(0 0 18px #ffd54f) brightness(1.4)';
+        setTimeout(()=>{ target.style.filter=''; }, 1800);
+        Snd.star();
+      }
+      paint();
+    });
+
+    const ticker = setInterval(()=>{
+      timeLeft--; paint();
+      if(timeLeft<=0){
+        clearInterval(ticker); clearInterval(hopper);
+        const win = document.createElement('div');
+        win.className = 'mm-win';
+        win.innerHTML = '<h2>Time’s up</h2><p>Found '+found+' of '+L.total+' in Lvl '+L.n+'</p><button id="fs-retry">Try Again</button>';
+        arena.appendChild(win);
+        document.getElementById('fs-retry').addEventListener('click', setupRound);
+      }
+    }, 1000);
+    gameTimers.push(ticker);
   }
 
-  arena.querySelectorAll('.fs-sheep').forEach(el=>{
-    el.addEventListener('click', (e)=>{
-      e.stopPropagation();
-      if(el.classList.contains('found')) return;
-      el.classList.add('found');
-      found++; paintScore();
-      Snd.match();
-      status.textContent = found===total ? 'Wonderful! You found them all.' : 'Found one — keep looking!';
-      if(found===total){ setTimeout(()=> finish(true), 600); }
-    });
-  });
+  setupRound();
+}
 
-  // Soft tick countdown (just for tension; no harsh fail)
-  const ticker = setInterval(()=>{
-    timeLeft--;
-    if(timeLeft<=0){ clearInterval(ticker); if(found<total) finish(false); }
-  }, 1000);
-  gameTimers.push(ticker);
+/* ----- Bible Crush (match-3) ----- */
+function startCrush(){
+  gvTitle.textContent = 'Bible Crush';
+  const COLS = 7, ROWS = 7;
+  const GEMS = [
+    {key:'star',  svg:'<svg viewBox="0 0 40 40"><polygon points="20,4 24,16 36,16 26,23 30,36 20,28 10,36 14,23 4,16 16,16" fill="#ffd54f" stroke="#ff8f00" stroke-width="1.5"/></svg>'},
+    {key:'dove',  svg:'<svg viewBox="0 0 40 40"><ellipse cx="22" cy="24" rx="14" ry="10" fill="#fff" stroke="#90caf9" stroke-width="1.5"/><circle cx="14" cy="20" r="6" fill="#fff" stroke="#90caf9" stroke-width="1.5"/><circle cx="13" cy="19" r="1.2" fill="#1a3a5c"/><polygon points="9,20 5,18 9,21" fill="#ff9800"/></svg>'},
+    {key:'fish',  svg:'<svg viewBox="0 0 40 40"><ellipse cx="22" cy="20" rx="12" ry="7" fill="#29b6f6" stroke="#0277bd" stroke-width="1.5"/><polygon points="34,20 40,14 40,26" fill="#29b6f6" stroke="#0277bd" stroke-width="1.5"/><circle cx="16" cy="18" r="1.5" fill="#fff"/></svg>'},
+    {key:'sheep', svg:'<svg viewBox="0 0 40 40"><ellipse cx="20" cy="24" rx="14" ry="9" fill="#fff" stroke="#9e9e9e" stroke-width="1.5"/><circle cx="20" cy="16" r="7" fill="#fff8ec" stroke="#9e9e9e" stroke-width="1.5"/><circle cx="17" cy="15" r="1" fill="#1a1a1a"/><circle cx="23" cy="15" r="1" fill="#1a1a1a"/></svg>'},
+    {key:'scroll',svg:'<svg viewBox="0 0 40 40"><rect x="8" y="10" width="24" height="20" rx="2" fill="#f4d8a0" stroke="#bf6f1a" stroke-width="1.5"/><line x1="14" y1="16" x2="26" y2="16" stroke="#5d4037" stroke-width="1"/><line x1="14" y1="20" x2="26" y2="20" stroke="#5d4037" stroke-width="1"/><line x1="14" y1="24" x2="22" y2="24" stroke="#5d4037" stroke-width="1"/></svg>'},
+    {key:'cross', svg:'<svg viewBox="0 0 40 40"><rect x="16" y="6" width="8" height="28" fill="#ffd54f" stroke="#ff8f00" stroke-width="1.5"/><rect x="8" y="14" width="24" height="8" fill="#ffd54f" stroke="#ff8f00" stroke-width="1.5"/></svg>'},
+    {key:'heart', svg:'<svg viewBox="0 0 40 40"><path d="M20 34 C 8 26, 4 16, 12 10 C 16 8, 20 12, 20 16 C 20 12, 24 8, 28 10 C 36 16, 32 26, 20 34 Z" fill="#ec407a" stroke="#ad1457" stroke-width="1.5"/></svg>'}
+  ];
+
+  let grid = [];           // 2D array of gem indices
+  let moves = 25;
+  let score = 0;
+  let combo = 0;
+  let selected = null;
+  let busy = false;
+
+  function paintHud(){
+    gvScore.innerHTML = '⭐ <b>'+score+'</b>  🎯 '+moves+' moves';
+  }
+
+  // Init grid (no auto-matches)
+  function fillGrid(){
+    grid = Array.from({length:ROWS}, ()=> Array(COLS).fill(0));
+    for(let r=0;r<ROWS;r++) for(let c=0;c<COLS;c++){
+      let tries = 0;
+      do{
+        grid[r][c] = Math.floor(Math.random()*GEMS.length);
+        tries++;
+      } while(tries<20 && (
+        (c>=2 && grid[r][c]===grid[r][c-1] && grid[r][c]===grid[r][c-2]) ||
+        (r>=2 && grid[r][c]===grid[r-1][c] && grid[r][c]===grid[r-2][c])
+      ));
+    }
+  }
+
+  function render(){
+    let html = '';
+    for(let r=0;r<ROWS;r++) for(let c=0;c<COLS;c++){
+      html += '<div class="bc-cell" data-r="'+r+'" data-c="'+c+'">'
+        + '<div class="bc-gem">'+GEMS[grid[r][c]].svg+'</div></div>';
+    }
+    board.innerHTML = html;
+    bindCells();
+  }
+
+  function bindCells(){
+    board.querySelectorAll('.bc-cell').forEach(cell=>{
+      cell.addEventListener('click', ()=> handleTap(parseInt(cell.dataset.r),parseInt(cell.dataset.c)));
+    });
+  }
+
+  function handleTap(r,c){
+    if(busy || moves<=0) return;
+    if(!selected){
+      selected = {r,c};
+      const cell = board.querySelector('.bc-cell[data-r="'+r+'"][data-c="'+c+'"]');
+      cell.classList.add('sel');
+      Snd.tap();
+    } else {
+      const a = selected, b = {r,c};
+      board.querySelectorAll('.bc-cell.sel').forEach(x=> x.classList.remove('sel'));
+      selected = null;
+      const dx = Math.abs(a.c-b.c), dy = Math.abs(a.r-b.r);
+      if((dx===1 && dy===0) || (dx===0 && dy===1)){
+        attemptSwap(a,b);
+      } else if(a.r!==b.r || a.c!==b.c){
+        selected = {r,c};
+        const cell = board.querySelector('.bc-cell[data-r="'+r+'"][data-c="'+c+'"]');
+        cell.classList.add('sel');
+        Snd.tap();
+      }
+    }
+  }
+
+  function swap(a,b){
+    const t = grid[a.r][a.c]; grid[a.r][a.c] = grid[b.r][b.c]; grid[b.r][b.c] = t;
+  }
+
+  function findMatches(){
+    const matches = new Set();
+    for(let r=0;r<ROWS;r++){
+      let run = 1;
+      for(let c=1;c<=COLS;c++){
+        if(c<COLS && grid[r][c]===grid[r][c-1]) run++;
+        else { if(run>=3) for(let k=c-run;k<c;k++) matches.add(r+','+k); run=1; }
+      }
+    }
+    for(let c=0;c<COLS;c++){
+      let run = 1;
+      for(let r=1;r<=ROWS;r++){
+        if(r<ROWS && grid[r][c]===grid[r-1][c]) run++;
+        else { if(run>=3) for(let k=r-run;k<r;k++) matches.add(k+','+c); run=1; }
+      }
+    }
+    return matches;
+  }
+
+  async function attemptSwap(a,b){
+    busy = true;
+    Snd.swoosh();
+    swap(a,b);
+    render();
+    await wait(180);
+    const matches = findMatches();
+    if(matches.size===0){
+      // invalid — swap back
+      Snd.buzz();
+      swap(a,b);
+      render();
+      busy = false;
+      return;
+    }
+    moves--;
+    combo = 0;
+    await processMatches();
+    paintHud();
+    busy = false;
+    if(moves<=0) endGame();
+  }
+
+  async function processMatches(){
+    let chain = 0;
+    while(true){
+      const matches = findMatches();
+      if(matches.size===0) break;
+      chain++;
+      const points = matches.size * 10 * chain;
+      score += points;
+      paintHud();
+      showCombo(chain);
+      Snd.match();
+      Stars.award(Math.max(1, Math.floor(matches.size/3)), 'Combo x'+chain+'!');
+      // animate matched
+      matches.forEach(key=>{
+        const [r,c] = key.split(',').map(Number);
+        const cell = board.querySelector('.bc-cell[data-r="'+r+'"][data-c="'+c+'"]');
+        if(cell) cell.classList.add('matched');
+      });
+      await wait(330);
+      // remove and gravity
+      matches.forEach(key=>{
+        const [r,c] = key.split(',').map(Number);
+        grid[r][c] = -1;
+      });
+      // gravity
+      for(let c=0;c<COLS;c++){
+        let stack = [];
+        for(let r=ROWS-1;r>=0;r--){ if(grid[r][c]!==-1) stack.push(grid[r][c]); }
+        for(let r=ROWS-1;r>=0;r--){
+          grid[r][c] = stack.length ? stack.shift() : Math.floor(Math.random()*GEMS.length);
+        }
+      }
+      render();
+      board.querySelectorAll('.bc-cell').forEach(c=> c.classList.add('dropping'));
+      await wait(260);
+    }
+  }
+
+  function showCombo(n){
+    const pop = document.createElement('div');
+    pop.className = 'bc-combo';
+    pop.textContent = n>1 ? 'Combo x'+n+'!' : '+'+(10);
+    pop.style.left = '50%';
+    pop.style.top = '50%';
+    board.appendChild(pop);
+    setTimeout(()=> pop.remove(), 1000);
+  }
+
+  function wait(ms){ return new Promise(res=> setTimeout(res, ms)); }
+
+  function endGame(){
+    Snd.win();
+    const earned = Math.floor(score/50);
+    if(earned>0) Stars.award(earned, 'Bible Crush!');
+    const win = document.createElement('div');
+    win.className = 'mm-win';
+    win.innerHTML = '<h2>🎯 Out of moves!</h2>'
+      + '<p>Score: <b>'+score+'</b></p>'
+      + (earned>0 ? '<p>You earned <b>'+earned+'</b> ⭐!</p>' : '')
+      + '<button id="bc-again">Play Again</button>';
+    board.parentNode.appendChild(win);
+    document.getElementById('bc-again').addEventListener('click', startCrush);
+  }
+
+  // Build UI
+  gvBody.innerHTML =
+    '<div class="bc-wrap">'
+    + '<div class="bc-hud"><span><span class="bc-tick"></span>Match 3+ to clear</span></div>'
+    + '<div class="bc-board" id="bc-board"></div>'
+    + '<div class="bc-msg">Tap one gem, then a neighbour to swap. Big chains = big stars!</div>'
+    + '</div>';
+  const board = document.getElementById('bc-board');
+  fillGrid();
+  render();
+  paintHud();
+
+  // Process any initial matches that slipped past
+  setTimeout(async ()=>{ busy=true; await processMatches(); busy=false; paintHud(); }, 200);
 }
 
 /* ============================================================
